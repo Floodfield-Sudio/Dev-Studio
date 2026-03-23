@@ -16,7 +16,7 @@
 - Auto-injection des dépendances pip à la sauvegarde
 - Build `.exe` / binaire Linux/macOS via PyInstaller
 - Système de versions dev → stable
-- MàJ automatique de l'app publiée (via GitHub Releases)
+- MàJ automatique de l'app publiée (via GitHub Releases) *En cours de développement* 
 
 ### ⛏ Mode Minecraft
 - Loaders supportés : **Forge**, **NeoForge**, **Fabric**, **Quilt**
