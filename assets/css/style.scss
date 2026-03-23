@@ -2,53 +2,79 @@
 ---
 @import "{{ site.theme }}";
 
-/* Fond sombre global */
+/* --- FOND GLOBAL SOMBRE --- */
 body {
   background-color: #0d1117 !important; 
   color: #c9d1d9 !important;
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
+  line-height: 1.6; /* Pour que le texte soit plus aéré */
 }
 
-/* --- FIX POUR LES BLOCS DE CODE (bash, python, etc.) --- */
+/* --- NETTOYAGE DES TABLEAUX (Compatibilité MC) --- */
+table {
+  background-color: transparent !important;
+  border-collapse: collapse !important;
+  width: 100%;
+  margin: 20px 0;
+  border: 1px solid #30363d !important; /* Bordure très discrète */
+}
+
+th, td {
+  background-color: transparent !important;
+  border: 1px solid #30363d !important; /* Bordure sombre entre les cases */
+  padding: 10px !important;
+  color: #c9d1d9 !important;
+}
+
+th {
+  background-color: #161b22 !important; /* En-tête légèrement plus clair */
+  color: #ffffff !important;
+}
+
+/* --- FIX POUR LES BLOCS DE CODE (Bash, etc.) --- */
 pre, code {
-  background-color: #161b22 !important; /* Gris un peu plus clair que le fond */
-  color: #e6edf3 !important;           /* Texte presque blanc */
-  border: 1px solid #30363d !important;
+  background-color: #161b22 !important;
+  color: #e6edf3 !important;
+  border: none !important; /* Supprime le contour blanc moche */
   border-radius: 6px;
+  box-shadow: none !important; /* Supprime les ombres blanches */
 }
 
 pre {
   padding: 16px !important;
-  overflow: auto; /* Permet de scroller si le code est trop long */
-  #background-color: transparent !important;
+  border: 1px solid #30363d !important;
 }
 
-code {
-  padding: 0.2em 0.4em !important;
-  font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+/* --- ALIGNEMENT ET IMAGES --- */
+img {
   background-color: transparent !important;
+  border: none !important;
 }
 
-/* --- ALIGNEMENT DES IMAGES --- */
-
-/* On centre UNIQUEMENT le logo (largeur 350) */
+/* Centre le logo de 350px */
 img[width="350"] {
   display: block;
   margin: 0 auto;
-  background-color: transparent !important;
 }
 
-/* On force les badges à rester l'un à côté de l'autre */
+/* Garde les badges alignés horizontalement */
 a img {
   display: inline-block !important;
-  margin-right: 5px;
+  margin-right: 8px;
   vertical-align: middle;
   background-color: transparent !important;
 }
 
 /* --- TITRES ET LIENS --- */
-h1, h2, h3 { color: #ffffff !important; border-bottom: 1px solid #30363d; padding-bottom: 8px; }
-a { color: #58a6ff !important; text-decoration: none; }
-a:hover { text-decoration: underline; }
+h1, h2, h3 { 
+  color: #ffffff !important; 
+  border-bottom: 1px solid #30363d !important; 
+  padding-bottom: 8px; 
+}
+
+a { 
+  color: #58a6ff !important; 
+  text-decoration: none; 
+}
