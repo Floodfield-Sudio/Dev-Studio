@@ -108,5 +108,5 @@ Voir [LICENSE](LICENSE) pour le texte complet.
 
 ## Crédits
 
-Développé par [mimiguaip](https://github.com/mimiguaip).  
-Construit avec [PyQt6](https://pypi.org/project/PyQt6/), [PyInstaller](https://pyinstaller.org), et beaucoup de café.
+Développé par [Floodfield-Sudio](https://github.com/Floodfield-Sudio).  
+Construit avec [PyQt6](https://pypi.org/project/PyQt6/), [PyInstaller](https://pyinstaller.org).
