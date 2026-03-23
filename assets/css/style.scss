@@ -2,7 +2,7 @@
 ---
 @import "{{ site.theme }}";
 
-/* Fond gris sombre moderne */
+/* Fond sombre global */
 body {
   background-color: #0d1117 !important; 
   color: #c9d1d9 !important;
@@ -11,21 +11,41 @@ body {
   padding: 20px;
 }
 
-/* On centre UNIQUEMENT le logo (qui a une largeur de 350) */
-/* Les autres images (badges) resteront l'une à côté de l'autre */
+/* --- FIX POUR LES BLOCS DE CODE (bash, python, etc.) --- */
+pre, code {
+  background-color: #161b22 !important; /* Gris un peu plus clair que le fond */
+  color: #e6edf3 !important;           /* Texte presque blanc */
+  border: 1px solid #30363d !important;
+  border-radius: 6px;
+}
+
+pre {
+  padding: 16px !important;
+  overflow: auto; /* Permet de scroller si le code est trop long */
+}
+
+code {
+  padding: 0.2em 0.4em !important;
+  font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+}
+
+/* --- ALIGNEMENT DES IMAGES --- */
+
+/* On centre UNIQUEMENT le logo (largeur 350) */
 img[width="350"] {
   display: block;
   margin: 0 auto;
   background-color: transparent !important;
 }
 
-/* On s'assure que les badges restent bien en ligne */
+/* On force les badges à rester l'un à côté de l'autre */
 a img {
   display: inline-block !important;
   margin-right: 5px;
-  background-color: transparent !important;
+  vertical-align: middle;
 }
 
-/* Couleurs des titres et liens */
-h1, h2 { color: #ffffff !important; border-bottom: 1px solid #30363d; }
+/* --- TITRES ET LIENS --- */
+h1, h2, h3 { color: #ffffff !important; border-bottom: 1px solid #30363d; padding-bottom: 8px; }
 a { color: #58a6ff !important; text-decoration: none; }
+a:hover { text-decoration: underline; }
