@@ -2,23 +2,30 @@
 ---
 @import "{{ site.theme }}";
 
-/* Fond gris sombre moderne (style GitHub Dark) */
+/* Fond gris sombre moderne */
 body {
   background-color: #0d1117 !important; 
   color: #c9d1d9 !important;
-  max-width: 800px; /* Centre le contenu proprement */
+  max-width: 800px;
   margin: 0 auto;
   padding: 20px;
 }
 
-/* Fix pour l'image : on force le fond transparent */
-img {
-  background-color: transparent !important;
+/* On centre UNIQUEMENT le logo (qui a une largeur de 350) */
+/* Les autres images (badges) resteront l'une à côté de l'autre */
+img[width="350"] {
   display: block;
-  margin: 0 auto; /* Centre le logo */
+  margin: 0 auto;
+  background-color: transparent !important;
+}
+
+/* On s'assure que les badges restent bien en ligne */
+a img {
+  display: inline-block !important;
+  margin-right: 5px;
+  background-color: transparent !important;
 }
 
 /* Couleurs des titres et liens */
 h1, h2 { color: #ffffff !important; border-bottom: 1px solid #30363d; }
 a { color: #58a6ff !important; text-decoration: none; }
-a:hover { text-decoration: underline; }
