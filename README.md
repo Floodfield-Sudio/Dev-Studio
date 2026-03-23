@@ -16,7 +16,7 @@
 - Auto-injection des dépendances pip à la sauvegarde
 - Build `.exe` / binaire Linux/macOS via PyInstaller
 - Système de versions dev → stable
-- MàJ automatique de l'app publiée (via GitHub Releases) *En cours de développement* 
+- MàJ automatique de l'app publiée (via GitHub Releases) *-En cours de développement* 
 
 ### ⛏ Mode Minecraft
 - Loaders supportés : **Forge**, **NeoForge**, **Fabric**, **Quilt**
@@ -33,7 +33,8 @@
 - Copie automatique du mod compilé dans chaque instance
 - Terminal serveur intégré (commandes `/op`, `/say`, etc.)
 
-### 🐙 GitHub
+### 🐙 GitHub 
+*-en cours de développement*
 - `git status / add / commit / push`
 - Création de Releases GitHub avec upload automatique du `.jar` ou `.exe`
 - Token stocké dans les paramètres (saisi une seule fois)
