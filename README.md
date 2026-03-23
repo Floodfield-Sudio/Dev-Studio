@@ -110,3 +110,4 @@ Voir [LICENSE](LICENSE) pour le texte complet.
 
 Développé par [Floodfield-Sudio](https://github.com/Floodfield-Sudio).  
 Construit avec [PyQt6](https://pypi.org/project/PyQt6/), [PyInstaller](https://pyinstaller.org).
+[Site Web](https://floodfield-sudio.github.io/FFS.index/)
