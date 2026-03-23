@@ -22,11 +22,13 @@ pre, code {
 pre {
   padding: 16px !important;
   overflow: auto; /* Permet de scroller si le code est trop long */
+  background-color: transparent !important;
 }
 
 code {
   padding: 0.2em 0.4em !important;
   font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+  background-color: transparent !important;
 }
 
 /* --- ALIGNEMENT DES IMAGES --- */
@@ -43,6 +45,7 @@ a img {
   display: inline-block !important;
   margin-right: 5px;
   vertical-align: middle;
+  background-color: transparent !important;
 }
 
 /* --- TITRES ET LIENS --- */
