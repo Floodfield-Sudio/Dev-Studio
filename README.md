@@ -1,4 +1,4 @@
-# DevStudio Pro
+# [DevStudio Pro](https://github.com/Floodfield-Sudio/Dev-Studio)
 
 **IDE Python + Builder de mods Minecraft** — tout-en-un, sans droits administrateur.
 
