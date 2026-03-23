@@ -1,0 +1,24 @@
+---
+---
+@import "{{ site.theme }}";
+
+/* Fond gris sombre moderne (style GitHub Dark) */
+body {
+  background-color: #0d1117 !important; 
+  color: #c9d1d9 !important;
+  max-width: 800px; /* Centre le contenu proprement */
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Fix pour l'image : on force le fond transparent */
+img {
+  background-color: transparent !important;
+  display: block;
+  margin: 0 auto; /* Centre le logo */
+}
+
+/* Couleurs des titres et liens */
+h1, h2 { color: #ffffff !important; border-bottom: 1px solid #30363d; }
+a { color: #58a6ff !important; text-decoration: none; }
+a:hover { text-decoration: underline; }
