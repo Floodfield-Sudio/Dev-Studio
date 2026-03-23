@@ -9,82 +9,75 @@ body {
   max-width: 900px;
   margin: 0 auto;
   padding: 30px;
-  line-height: 1.6;
 }
 
-/* 2. SUPPRESSION TOTALE DES CONTOURS BLANCS (Shadows & Borders) */
-* {
-  box-shadow: none !important; /* Enlève les ombres portées blanches */
+/* 2. FIX RADICAL POUR LES BLOCS DE CODE (Bash, Python, etc.) */
+/* On nettoie le bloc entier */
+pre {
+  background-color: #161b22 !important; /* Gris très foncé */
+  border: 1px solid #30363d !important; /* Bordure sombre discrète */
+  color: #e6edf3 !important;
+  padding: 16px !important;
+  border-radius: 6px !important;
+  box-shadow: none !important; /* Supprime le contour blanc moche */
+  overflow: auto;
+}
+
+/* On nettoie le texte à l'intérieur pour enlever l'encadré gris moche */
+pre code {
+  background-color: transparent !important; /* SUPPRIME L'ENCADRÉ DU TEXTE */
+  color: inherit !important;
+  padding: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
   text-shadow: none !important;
 }
 
-/* 3. FIX POUR LES TABLEAUX (Nettoyage complet) */
+/* Pour le code "en ligne" (ex: `mon_fichier.py`) hors des gros blocs */
+:not(pre) > code {
+  background-color: #21262d !important;
+  color: #e6edf3 !important;
+  padding: 0.2em 0.4em !important;
+  border-radius: 6px !important;
+  border: none !important;
+}
+
+/* 3. TABLEAUX (On garde ce qui marchait) */
 table {
-  display: table !important;
   border-collapse: collapse !important;
   background-color: transparent !important;
-  border: 1px solid #30363d !important; /* Bordure sombre */
-  margin-bottom: 20px;
-}
-
-tr, td, th {
-  background-color: transparent !important;
   border: 1px solid #30363d !important;
-  color: #c9d1d9 !important;
-  padding: 8px 12px !important;
+  margin: 20px 0;
 }
 
-th {
-  background-color: #161b22 !important;
-  color: #ffffff !important;
+th, td {
+  border: 1px solid #30363d !important;
+  padding: 10px !important;
+  background-color: transparent !important;
 }
 
-/* 4. FIX POUR LES BLOCS DE CODE ET BASH */
-pre, code {
-  background-color: #161b22 !important;
-  color: #e6edf3 !important;
-  border: 1px solid #30363d !important; /* Bordure fine et sombre */
-  border-radius: 6px;
-}
-
-pre {
-  padding: 16px !important;
-}
-
-/* 5. IMAGES ET BADGES (Zéro contour) */
+/* 4. IMAGES ET BADGES */
 img {
   background-color: transparent !important;
   border: none !important;
   box-shadow: none !important;
 }
 
-/* Centre le logo uniquement */
 img[width="350"] {
   display: block;
   margin: 0 auto 20px auto;
 }
 
-/* Aligne les badges horizontalement */
 a img {
   display: inline-block !important;
-  margin-right: 5px;
+  margin-right: 8px;
   vertical-align: middle;
 }
 
-/* 6. TITRES ET LIENS */
+/* 5. TITRES ET LIENS */
 h1, h2, h3 { 
   color: #ffffff !important; 
   border-bottom: 1px solid #30363d !important;
-  padding-bottom: 5px;
-  margin-top: 24px;
 }
 
-a { 
-  color: #58a6ff !important; 
-  text-decoration: none; 
-}
-
-a:hover { text-decoration: underline; }
-
-/* Supprime la barre grise moche en haut si elle existe */
-header { background: transparent !important; border: none !important; }
+a { color: #58a6ff !important; text-decoration: none; }
