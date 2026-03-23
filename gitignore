@@ -1,0 +1,37 @@
+# ── Environnements Python ────────────────────────────────────────
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.pyo
+
+# ── Build PyInstaller ────────────────────────────────────────────
+dist/
+build/
+*.spec
+
+# ── Artefacts DevStudio Pro ──────────────────────────────────────
+version_info.py
+_updater.py
+version.json
+install_*.bat
+install_*.sh
+
+# ── JDK portables (téléchargés automatiquement) ──────────────────
+.jdk/
+
+# ── Données Minecraft (instances, libs, assets) ──────────────────
+mc/
+mdk/
+
+# ── Logs ─────────────────────────────────────────────────────────
+logs/
+*.log
+
+# ── IDE ──────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
