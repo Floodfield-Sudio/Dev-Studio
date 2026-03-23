@@ -2,82 +2,62 @@
 ---
 @import "{{ site.theme }}";
 
-/* 1. FOND GLOBAL ET TEXTE */
+/* 1. FOND GLOBAL */
 body {
   background-color: #0d1117 !important; 
   color: #c9d1d9 !important;
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 30px;
 }
 
-/* 2. FIX RADICAL POUR LES BLOCS DE CODE (Bash, Python, etc.) */
-/* On nettoie le bloc entier */
+/* 2. TABLEAUX - NETTOYAGE RADICAL DU BLANC */
+table {
+  border-collapse: collapse !important;
+  width: 100% !important;
+  background-color: #0d1117 !important; /* Force le fond sombre */
+  border: 1px solid #30363d !important;
+  display: table !important; /* Force l'affichage en tableau réel */
+}
+
+/* Force TOUTES les lignes à être sombres (supprime l'effet ligne blanche/grise) */
+table tr, 
+table tr:nth-child(2n) {
+  background-color: #0d1117 !important; 
+  border: 1px solid #30363d !important;
+}
+
+/* Force TOUTES les cellules et en-têtes */
+table td, 
+table th {
+  border: 1px solid #30363d !important;
+  padding: 12px !important;
+  color: #ffffff !important; /* Texte blanc pour la lisibilité */
+  background-color: transparent !important;
+}
+
+/* En-tête légèrement plus gris pour le look "GitHub Dark" */
+table th {
+  background-color: #161b22 !important;
+  font-weight: bold;
+}
+
+/* 3. BLOCS BASH (Déjà OK, on garde) */
 pre {
-  background-color: #161b22 !important; /* Gris très foncé */
-  border: 1px solid #30363d !important; /* Bordure sombre discrète */
+  background-color: #161b22 !important; 
+  border: 1px solid #30363d !important;
   color: #e6edf3 !important;
   padding: 16px !important;
   border-radius: 6px !important;
-  box-shadow: none !important; /* Supprime le contour blanc moche */
-  overflow: auto;
 }
+pre code { border: none !important; background: transparent !important; }
 
-/* On nettoie le texte à l'intérieur pour enlever l'encadré gris moche */
-pre code {
-  background-color: transparent !important; /* SUPPRIME L'ENCADRÉ DU TEXTE */
-  color: inherit !important;
-  padding: 0 !important;
-  border: none !important;
-  box-shadow: none !important;
-  text-shadow: none !important;
-}
-
-/* Pour le code "en ligne" (ex: `mon_fichier.py`) hors des gros blocs */
+/* 4. CODE COURT (exemple : 'k') */
 :not(pre) > code {
+  font-size: 85% !important;
   background-color: #21262d !important;
-  color: #e6edf3 !important;
+  color: #ff7b72 !important;
   padding: 0.2em 0.4em !important;
-  border-radius: 6px !important;
-  border: none !important;
 }
 
-/* 3. TABLEAUX (On garde ce qui marchait) */
-table {
-  border-collapse: collapse !important;
-  background-color: transparent !important;
-  border: 1px solid #30363d !important;
-  margin: 20px 0;
-}
-
-th, td {
-  border: 1px solid #30363d !important;
-  padding: 10px !important;
-  background-color: transparent !important;
-}
-
-/* 4. IMAGES ET BADGES */
-img {
-  background-color: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-}
-
-img[width="350"] {
-  display: block;
-  margin: 0 auto 20px auto;
-}
-
-a img {
-  display: inline-block !important;
-  margin-right: 8px;
-  vertical-align: middle;
-}
-
-/* 5. TITRES ET LIENS */
-h1, h2, h3 { 
-  color: #ffffff !important; 
-  border-bottom: 1px solid #30363d !important;
-}
-
-a { color: #58a6ff !important; text-decoration: none; }
+/* 5. LOGO ET TITRES */
+img { background-color: transparent !important; }
+h1, h2, h3 { color: #ffffff !important; border-bottom: 1px solid #30363d !important; }
+a { color: #58a6ff !important; }
