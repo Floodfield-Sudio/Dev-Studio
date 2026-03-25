@@ -534,17 +534,16 @@ class PythonHighlighter(QSyntaxHighlighter):
         self._class_fmt = _fmt(DARK["yellow"],  bold=True)
 
     def highlightBlock(self, text: str):
-        # ── 1. Triple-quotes EN PREMIER (priorité sur tout le reste) ─────────
-        # On garde les intervalles couverts pour ne pas les écraser après
+        # Triple-quotes en premier — deux états distincts (1=double, 2=simple)
         ml_ranges: list[tuple[int,int]] = []
         ml_green = _fmt(DARK["green"])
+        self.setCurrentBlockState(0)
         for delim, sid in [('"""', 1), ("'''", 2)]:
             self._hl_ml(text, delim, sid, ml_green, ml_ranges)
 
-        # ── 2. Règles simples (on évite d'écraser les zones triple-quotes) ───
         def _in_ml(pos: int, length: int) -> bool:
-            end = pos + length
-            return any(s <= pos and end <= e for s, e in ml_ranges)
+            e = pos + length
+            return any(s <= pos and e <= en for s, en in ml_ranges)
 
         for pattern, fmt in self._rules:
             if fmt is None:
@@ -559,14 +558,19 @@ class PythonHighlighter(QSyntaxHighlighter):
                         self.setFormat(m.start(), m.end()-m.start(), fmt)
 
     def _hl_ml(self, text, delim, state_id, fmt, ranges_out=None):
-        """Colore les strings multi-lignes et enregistre leurs intervalles."""
-        if self.previousBlockState() == state_id:
+        prev = self.previousBlockState()
+        in_this = (prev == state_id)
+        if in_this:
             start = 0; add = 0
         else:
-            start = text.find(delim); add = len(delim)
+            # Si on est dans l'AUTRE délimiteur, ne pas toucher l'état
+            if prev in (1, 2):
+                return
+            start = text.find(delim)
+            add   = len(delim)
         if start == -1:
-            if self.previousBlockState() != state_id:
-                self.setCurrentBlockState(0)
+            # Pas dans ce bloc et pas trouvé sur cette ligne : ne pas reset l'état
+            # (évite d'écraser l'état positionné par l'autre délimiteur)
             return
         while start >= 0:
             end = text.find(delim, start + add)
@@ -581,7 +585,9 @@ class PythonHighlighter(QSyntaxHighlighter):
                 length = end - start + len(delim)
                 self.setFormat(start, length, fmt)
                 if ranges_out is not None: ranges_out.append((start, start + length))
-                start = text.find(delim, end + len(delim)); add = len(delim)
+                start = text.find(delim, end + len(delim))
+                add   = len(delim)
+
 
 
 class JavaHighlighter(QSyntaxHighlighter):
@@ -1213,6 +1219,111 @@ class PythonBuildPanel(QWidget):
         self.output.write_ok(f"[build] install_{channel}.bat / .sh générés ✓")
 
     # ── Build PyInstaller ─────────────────────────────────────────
+    def _write_installer_generator(self):
+        """Genere installer.pyw pour distribution."""
+        out_path = self.project_root / "installer.pyw"
+        app = self._app_name()
+        ver = self._version()
+        gh  = self._gh_repo()
+        # Ecrire le code de l'installeur dans une liste de lignes pour eviter
+        # tout probleme d'echappement de guillemets imbriques
+        code_lines = []
+        code_lines.append("#!/usr/bin/env python3")
+        code_lines.append("import sys, os, json, shutil, subprocess, platform, threading")
+        code_lines.append("import urllib.request")
+        code_lines.append("from pathlib import Path")
+        code_lines.append("APP_NAME    = " + repr(app))
+        code_lines.append("VERSION     = " + repr(ver))
+        code_lines.append("GITHUB_REPO = " + repr(gh))
+        code_lines.append("RELEASE_URL = " + repr("https://api.github.com/repos/" + gh + "/releases/latest"))
+        code_lines.append("INSTALL_WIN  = Path.home() / 'AppData' / 'Local' / APP_NAME")
+        code_lines.append("INSTALL_UNIX = Path.home() / '.local' / APP_NAME")
+        code_lines.append("INSTALL_DIR  = INSTALL_WIN if platform.system() == 'Windows' else INSTALL_UNIX")
+        code_lines.append("MODULES = {")
+        code_lines.append("    'python':    {'label': 'Python IDE',          'default': True},")
+        code_lines.append("    'java_mc':   {'label': 'Minecraft Java Build', 'default': True},")
+        code_lines.append("    'instances': {'label': 'Instances Minecraft',  'default': True},")
+        code_lines.append("    'github':    {'label': 'GitHub',               'default': True},")
+        code_lines.append("}")
+        code_lines.append("try:")
+        code_lines.append("    from PyQt6.QtWidgets import (QApplication, QWidget, QVBoxLayout,")
+        code_lines.append("        QLabel, QCheckBox, QPushButton, QProgressBar, QPlainTextEdit)")
+        code_lines.append("    from PyQt6.QtCore import Qt")
+        code_lines.append("except ImportError:")
+        code_lines.append("    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'PyQt6', '-q'])")
+        code_lines.append("    from PyQt6.QtWidgets import (QApplication, QWidget, QVBoxLayout,")
+        code_lines.append("        QLabel, QCheckBox, QPushButton, QProgressBar, QPlainTextEdit)")
+        code_lines.append("    from PyQt6.QtCore import Qt")
+        code_lines.append("class Installer(QWidget):")
+        code_lines.append("    def __init__(self):")
+        code_lines.append("        super().__init__()")
+        code_lines.append("        self.setWindowTitle('Installer ' + APP_NAME + ' ' + VERSION)")
+        code_lines.append("        self.setMinimumWidth(460)")
+        code_lines.append("        lay = QVBoxLayout(self)")
+        code_lines.append("        lay.addWidget(QLabel('<h2>' + APP_NAME + ' ' + VERSION + '</h2>'))")
+        code_lines.append("        self._checks = {}")
+        code_lines.append("        for key, info in MODULES.items():")
+        code_lines.append("            chk = QCheckBox(info['label'])")
+        code_lines.append("            chk.setChecked(info['default'])")
+        code_lines.append("            self._checks[key] = chk")
+        code_lines.append("            lay.addWidget(chk)")
+        code_lines.append("        self._log = QPlainTextEdit()")
+        code_lines.append("        self._log.setReadOnly(True)")
+        code_lines.append("        self._log.setMaximumHeight(130)")
+        code_lines.append("        lay.addWidget(self._log)")
+        code_lines.append("        self._bar = QProgressBar()")
+        code_lines.append("        self._bar.setRange(0, 0)")
+        code_lines.append("        self._bar.hide()")
+        code_lines.append("        lay.addWidget(self._bar)")
+        code_lines.append("        btn = QPushButton('Installer')")
+        code_lines.append("        btn.clicked.connect(self._start)")
+        code_lines.append("        lay.addWidget(btn)")
+        code_lines.append("    def _log_msg(self, msg):")
+        code_lines.append("        self._log.appendPlainText(str(msg))")
+        code_lines.append("    def _start(self):")
+        code_lines.append("        selected = [k for k, c in self._checks.items() if c.isChecked()]")
+        code_lines.append("        self._bar.show()")
+        code_lines.append("        def _do():")
+        code_lines.append("            try:")
+        code_lines.append("                INSTALL_DIR.mkdir(parents=True, exist_ok=True)")
+        code_lines.append("                if GITHUB_REPO:")
+        code_lines.append("                    try:")
+        code_lines.append("                        req = urllib.request.Request(")
+        code_lines.append("                            RELEASE_URL, headers={'User-Agent': 'Installer/1.0'})")
+        code_lines.append("                        with urllib.request.urlopen(req, timeout=8) as r:")
+        code_lines.append("                            data = json.loads(r.read())")
+        code_lines.append("                        os_n = platform.system().lower()")
+        code_lines.append("                        assets = data.get('assets', [])")
+        code_lines.append("                        asset = next(")
+        code_lines.append("                            (a for a in assets")
+        code_lines.append("                             if os_n in a['name'].lower()")
+        code_lines.append("                             or (os_n == 'windows' and a['name'].endswith('.exe'))),")
+        code_lines.append("                            assets[0] if assets else None)")
+        code_lines.append("                        if asset:")
+        code_lines.append("                            exe = APP_NAME + ('.exe' if platform.system() == 'Windows' else '')")
+        code_lines.append("                            dest = INSTALL_DIR / exe")
+        code_lines.append("                            self._log_msg('Telechargement...')")
+        code_lines.append("                            urllib.request.urlretrieve(asset['browser_download_url'], dest)")
+        code_lines.append("                            if platform.system() != 'Windows':")
+        code_lines.append("                                os.chmod(dest, 0o755)")
+        code_lines.append("                            self._log_msg('Installe dans ' + str(INSTALL_DIR))")
+        code_lines.append("                            with open(INSTALL_DIR / 'modules.json', 'w') as f:")
+        code_lines.append("                                json.dump({'enabled': selected}, f)")
+        code_lines.append("                    except Exception as e:")
+        code_lines.append("                        self._log_msg('Hors-ligne ou erreur : ' + str(e))")
+        code_lines.append("                self._log_msg('Installation terminee !')")
+        code_lines.append("            except Exception as e:")
+        code_lines.append("                self._log_msg('Erreur : ' + str(e))")
+        code_lines.append("        threading.Thread(target=_do, daemon=True).start()")
+        code_lines.append("if __name__ == '__main__':")
+        code_lines.append("    _a = QApplication(sys.argv)")
+        code_lines.append("    _w = Installer()")
+        code_lines.append("    _w.show()")
+        code_lines.append("    sys.exit(_a.exec())")
+        out_path.write_text("\n".join(code_lines) + "\n", encoding="utf-8")
+        self.output.write_ok("[build] installer.pyw genere")
+
+
     def _ensure_pyinstaller(self) -> bool:
         import importlib.util
         if importlib.util.find_spec("PyInstaller") is not None: return True
@@ -1237,6 +1348,7 @@ class PythonBuildPanel(QWidget):
         self._write_updater()
         self._write_version_json(channel)
         self._write_installers(channel)
+        self._write_installer_generator()
 
         dist_dir = self._dist_dir(channel)
         dist_dir.mkdir(parents=True, exist_ok=True)
@@ -2032,212 +2144,526 @@ class MinecraftBuildPanel(QWidget):
 #  PANNEAU GITHUB
 # ════════════════════════════════════════════════════════════════
 
+
 class GitHubPanel(QWidget):
+    """
+    Panneau GitHub — workflow basé sur un dossier de sync par projet.
+    Le dossier <projet>/.devstudio/github/ est le clone git local.
+    Seuls les fichiers spécifiés dans .devstudio/github_files.txt y sont copiés.
+    """
     def __init__(self, output: OutputPanel, settings: QSettings, parent=None):
         super().__init__(parent)
-        self.output   = output
-        self.settings = settings
+        self.output       = output
+        self.settings     = settings
         self.project_path: Optional[Path] = None
         self._worker: Optional[RunWorker] = None
 
-        lay = QVBoxLayout(self); lay.setContentsMargins(4,4,4,4); lay.setSpacing(6)
+        lay = QVBoxLayout(self); lay.setContentsMargins(4,4,4,4); lay.setSpacing(5)
 
-        # ── Token GitHub ────────────────────────────────────────
-        tok = QGroupBox("Authentification GitHub")
-        tok_l = QHBoxLayout(tok); tok_l.setContentsMargins(8,4,8,4)
-        tok_l.addWidget(QLabel("Token :"))
-        self.token_edit = QLineEdit(); self.token_edit.setEchoMode(QLineEdit.EchoMode.Password)
-        self.token_edit.setPlaceholderText("ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+        # ── Auth ─────────────────────────────────────────────────
+        auth = QGroupBox("Authentification GitHub")
+        al = QHBoxLayout(auth); al.setContentsMargins(8,4,8,4)
+        al.addWidget(QLabel("Token :"))
+        self.token_edit = QLineEdit()
+        self.token_edit.setEchoMode(QLineEdit.EchoMode.Password)
+        self.token_edit.setPlaceholderText("ghp_xxxx…")
         self.token_edit.setText(self.settings.value("github_token", ""))
-        self.token_edit.editingFinished.connect(lambda: self.settings.setValue("github_token", self.token_edit.text().strip()))
-        tok_l.addWidget(self.token_edit)
-        tok_l.addWidget(QLabel("Branche :"))
-        self.branch_edit = QLineEdit(); self.branch_edit.setPlaceholderText("main"); self.branch_edit.setFixedWidth(90)
+        self.token_edit.editingFinished.connect(
+            lambda: self.settings.setValue("github_token", self.token_edit.text().strip()))
+        al.addWidget(self.token_edit)
+        al.addWidget(QLabel("Branche :"))
+        self.branch_edit = QLineEdit(); self.branch_edit.setFixedWidth(80)
         self.branch_edit.setText(self.settings.value("github_branch", "main"))
-        self.branch_edit.editingFinished.connect(lambda: self.settings.setValue("github_branch", self.branch_edit.text().strip()))
-        tok_l.addWidget(self.branch_edit); lay.addWidget(tok)
+        self.branch_edit.editingFinished.connect(
+            lambda: self.settings.setValue("github_branch", self.branch_edit.text().strip()))
+        al.addWidget(self.branch_edit); lay.addWidget(auth)
 
-        # ── Status + commit ─────────────────────────────────────
+        # ── Dépôt ────────────────────────────────────────────────
+        repo_grp = QGroupBox("Dépôt GitHub")
+        rl = QVBoxLayout(repo_grp); rl.setContentsMargins(8,4,8,8); rl.setSpacing(4)
+        rr = QHBoxLayout(); rr.addWidget(QLabel("URL remote :"))
+        self.remote_edit = QLineEdit()
+        self.remote_edit.setPlaceholderText("https://github.com/user/repo.git")
+        self.remote_edit.setText(self.settings.value("github_remote", ""))
+        self.remote_edit.editingFinished.connect(
+            lambda: self.settings.setValue("github_remote", self.remote_edit.text().strip()))
+        rr.addWidget(self.remote_edit); rl.addLayout(rr)
+
+        # Dossier de sync
+        sf = QHBoxLayout(); sf.addWidget(QLabel("Sync folder :"))
+        self.sync_edit = QLineEdit()
+        self.sync_edit.setPlaceholderText(".devstudio/github  (dossier clone git)")
+        self.sync_edit.setToolTip(
+            "Dossier git clone dans votre projet.\n"
+            "Seuls les fichiers listés dans .devstudio/github_files.txt seront copiés ici.\n"
+            "Laissez vide pour utiliser le défaut (.devstudio/github)")
+        sf.addWidget(self.sync_edit)
+        rl.addLayout(sf)
+
+        self.sync_info = QLabel("📁 Dossier de sync : non configuré")
+        self.sync_info.setStyleSheet(f"color:{DARK['text_dim']};font-size:10px;")
+        rl.addWidget(self.sync_info)
+
+        init_row = QHBoxLayout()
+        self.clone_btn  = QPushButton("⬇ Cloner / Connecter le dépôt")
+        self.clone_btn.setObjectName("promote_btn")
+        self.clone_btn.setToolTip("Clone le dépôt distant dans le sync folder,\nou connecte un dépôt existant.")
+        self.clone_btn.clicked.connect(self._clone_or_connect)
+        self.pull_btn   = QPushButton("🔄 Pull (MàJ depuis GitHub)")
+        self.pull_btn.clicked.connect(self._pull)
+        init_row.addWidget(self.clone_btn); init_row.addWidget(self.pull_btn)
+        rl.addLayout(init_row); lay.addWidget(repo_grp)
+
+        # ── Fichiers à publier ────────────────────────────────────
+        files_grp = QGroupBox("Fichiers à publier")
+        fl = QVBoxLayout(files_grp); fl.setContentsMargins(8,4,8,8); fl.setSpacing(4)
+        fl.addWidget(QLabel(
+            "Listez les fichiers/dossiers à inclure dans le dépôt\n"
+            "(un par ligne, chemins relatifs au projet, supports glob ex: src/**)"
+        ).setStyleSheet if False else
+        self._small_lbl(
+            "Un fichier/dossier par ligne — chemins relatifs au projet (glob supporté, ex: src/**)"))
+        self.files_edit = QPlainTextEdit()
+        self.files_edit.setFixedHeight(80)
+        self.files_edit.setPlaceholderText(
+            "DevStudioPro.pyw\nrun.bat\nrun.sh\nREADME.md\nLICENSE\n.gitignore")
+        self.files_edit.setFont(QFont("Consolas", 10))
+        fl.addWidget(self.files_edit)
+        edit_files_btn = QPushButton("📄 Éditer .devstudio/github_files.txt")
+        edit_files_btn.clicked.connect(self._open_files_config)
+        fl.addWidget(edit_files_btn)
+        lay.addWidget(files_grp)
+
+        # ── Commit + Push ─────────────────────────────────────────
         commit_grp = QGroupBox("Commit + Push")
-        c_l = QVBoxLayout(commit_grp); c_l.setContentsMargins(8,4,8,8); c_l.setSpacing(4)
-        self.git_status_lbl = QLabel("État du dépôt : –")
+        cl = QVBoxLayout(commit_grp); cl.setContentsMargins(8,4,8,8); cl.setSpacing(4)
+        self.git_status_lbl = QLabel("État : –")
         self.git_status_lbl.setStyleSheet(f"color:{DARK['text_dim']};font-size:11px;")
-        c_l.addWidget(self.git_status_lbl)
-        msg_row = QHBoxLayout(); msg_row.addWidget(QLabel("Message :"))
-        self.commit_edit = QLineEdit(); self.commit_edit.setPlaceholderText("feat: description du commit")
-        msg_row.addWidget(self.commit_edit); c_l.addLayout(msg_row)
-        btn_row = QHBoxLayout()
-        self.status_btn = QPushButton("🔄 git status"); self.status_btn.clicked.connect(self._git_status)
-        self.commit_btn = QPushButton("💾 git add + commit"); self.commit_btn.clicked.connect(self._git_commit)
-        self.push_btn   = QPushButton("⬆ git push"); self.push_btn.setObjectName("gh_btn"); self.push_btn.clicked.connect(self._git_push)
-        btn_row.addWidget(self.status_btn); btn_row.addWidget(self.commit_btn); btn_row.addWidget(self.push_btn)
-        c_l.addLayout(btn_row); lay.addWidget(commit_grp)
+        cl.addWidget(self.git_status_lbl)
+        mr = QHBoxLayout(); mr.addWidget(QLabel("Message :"))
+        self.commit_edit = QLineEdit()
+        self.commit_edit.setPlaceholderText("feat: description du commit")
+        mr.addWidget(self.commit_edit); cl.addLayout(mr)
+        br = QHBoxLayout()
+        self.status_btn = QPushButton("🔄 Statut"); self.status_btn.clicked.connect(self._git_status)
+        self.sync_push_btn = QPushButton("⬆ Synchroniser + Push")
+        self.sync_push_btn.setObjectName("gh_btn")
+        self.sync_push_btn.setToolTip(
+            "1. Copie les fichiers listés → sync folder\n"
+            "2. git add + commit\n"
+            "3. git push")
+        self.sync_push_btn.clicked.connect(self._sync_and_push)
+        br.addWidget(self.status_btn); br.addWidget(self.sync_push_btn)
+        cl.addLayout(br); lay.addWidget(commit_grp)
 
-        # ── Release ─────────────────────────────────────────────
-        rel_grp = QGroupBox("Créer une Release GitHub")
-        r_l = QVBoxLayout(rel_grp); r_l.setContentsMargins(8,4,8,8); r_l.setSpacing(4)
-        tag_row = QHBoxLayout(); tag_row.addWidget(QLabel("Tag :"))
-        self.tag_edit = QLineEdit(); self.tag_edit.setPlaceholderText("v1.0.0"); self.tag_edit.setFixedWidth(100)
-        tag_row.addWidget(self.tag_edit); tag_row.addWidget(QLabel("Nom release :"))
+        # ── Release ───────────────────────────────────────────────
+        rel_grp = QGroupBox("Release GitHub")
+        rrel = QVBoxLayout(rel_grp); rrel.setContentsMargins(8,4,8,8); rrel.setSpacing(4)
+        tr = QHBoxLayout(); tr.addWidget(QLabel("Tag :"))
+        self.tag_edit = QLineEdit(); self.tag_edit.setPlaceholderText("v1.0.0"); self.tag_edit.setFixedWidth(90)
+        tr.addWidget(self.tag_edit); tr.addWidget(QLabel("Nom :"))
         self.rel_name_edit = QLineEdit(); self.rel_name_edit.setPlaceholderText("Version 1.0.0")
-        tag_row.addWidget(self.rel_name_edit); r_l.addLayout(tag_row)
-        notes_row = QHBoxLayout(); notes_row.addWidget(QLabel("Notes :"))
+        tr.addWidget(self.rel_name_edit); rrel.addLayout(tr)
+        nr = QHBoxLayout(); nr.addWidget(QLabel("Notes :"))
         self.rel_notes = QLineEdit(); self.rel_notes.setPlaceholderText("Description de la release …")
-        notes_row.addWidget(self.rel_notes); r_l.addLayout(notes_row)
-        asset_row = QHBoxLayout(); asset_row.addWidget(QLabel("Fichier joint :"))
-        self.asset_path_edit = QLineEdit(); self.asset_path_edit.setPlaceholderText("(optionnel) chemin vers .jar ou .exe")
-        asset_row.addWidget(self.asset_path_edit)
-        browse_btn = QPushButton("📂"); browse_btn.setFixedWidth(30); browse_btn.clicked.connect(self._browse_asset)
-        asset_row.addWidget(browse_btn); r_l.addLayout(asset_row)
-        self.prerelease_chk = QCheckBox("Pré-release"); r_l.addWidget(self.prerelease_chk)
-        create_btn = QPushButton("🚀 Créer la Release"); create_btn.setObjectName("promote_btn"); create_btn.clicked.connect(self._create_release)
-        r_l.addWidget(create_btn); lay.addWidget(rel_grp)
+        nr.addWidget(self.rel_notes); rrel.addLayout(nr)
+        ar = QHBoxLayout(); ar.addWidget(QLabel("Fichier :"))
+        self.asset_path_edit = QLineEdit(); self.asset_path_edit.setPlaceholderText("(optionnel) .jar ou .exe")
+        ar.addWidget(self.asset_path_edit)
+        bb = QPushButton("📂"); bb.setFixedWidth(28); bb.clicked.connect(self._browse_asset)
+        ar.addWidget(bb); rrel.addLayout(ar)
+        self.prerelease_chk = QCheckBox("Pré-release"); rrel.addWidget(self.prerelease_chk)
+        self.create_rel_btn = QPushButton("🚀 Créer la Release")
+        self.create_rel_btn.setObjectName("promote_btn"); self.create_rel_btn.clicked.connect(self._create_release)
+        rrel.addWidget(self.create_rel_btn); lay.addWidget(rel_grp)
 
-        self.gh_progress = QProgressBar(); self.gh_progress.setRange(0,0); self.gh_progress.setFixedHeight(4); self.gh_progress.hide()
+        self.gh_progress = QProgressBar(); self.gh_progress.setRange(0,0)
+        self.gh_progress.setFixedHeight(4); self.gh_progress.hide()
         lay.addWidget(self.gh_progress); lay.addStretch()
 
-    def set_project(self, path: Path):
-        self.project_path = path; self._git_status()
+    @staticmethod
+    def _small_lbl(txt):
+        l = QLabel(txt); l.setStyleSheet(f"color:{DARK['text_dim']};font-size:10px;"); return l
 
-    def _git(self, args: list, cb_ok=None, cb_err=None) -> Optional[str]:
-        """Lance une commande git synchrone et retourne la sortie."""
-        if not self.project_path: return None
+    # ── Dossier de sync ───────────────────────────────────────────
+
+    def _sync_dir(self) -> Path:
+        """Retourne le chemin absolu du dossier de sync (clone git)."""
+        custom = self.sync_edit.text().strip()
+        if custom:
+            p = Path(custom)
+            if not p.is_absolute() and self.project_path:
+                p = self.project_path / p
+            return p
+        if self.project_path:
+            return self.project_path / ".devstudio" / "github"
+        return Path.cwd() / ".devstudio" / "github"
+
+    def _files_config(self) -> Path:
+        if self.project_path:
+            return self.project_path / ".devstudio" / "github_files.txt"
+        return Path(".devstudio/github_files.txt")
+
+    def _load_files_list(self) -> list[str]:
+        fc = self._files_config()
+        if fc.exists():
+            lines = [l.strip() for l in fc.read_text(encoding="utf-8").splitlines()]
+            return [l for l in lines if l and not l.startswith("#")]
+        return []
+
+    def _save_files_list(self, lines: list[str]):
+        fc = self._files_config(); fc.parent.mkdir(parents=True, exist_ok=True)
+        fc.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+    def _open_files_config(self):
+        fc = self._files_config(); fc.parent.mkdir(parents=True, exist_ok=True)
+        if not fc.exists():
+            current = self.files_edit.toPlainText().strip()
+            fc.write_text(current or "# Ajoutez ici les fichiers à publier\n", encoding="utf-8")
+        # Ouvrir dans l'éditeur de DevStudio
+        parent_win = self.window()
+        if hasattr(parent_win, "_open_file"):
+            parent_win._open_file(fc)
+
+    def _update_sync_info(self):
+        sd = self._sync_dir()
+        git_ok = (sd / ".git").exists()
+        if git_ok:
+            self.sync_info.setText(f"✅ Sync folder : {sd}")
+            self.sync_info.setStyleSheet(f"color:{DARK['green']};font-size:10px;")
+        else:
+            self.sync_info.setText(f"📁 Sync folder : {sd}  (pas encore initialisé)")
+            self.sync_info.setStyleSheet(f"color:{DARK['text_dim']};font-size:10px;")
+
+    # ── Git helpers ───────────────────────────────────────────────
+
+    def _git(self, args: list, cwd: Path = None) -> tuple[int, str]:
+        d = cwd or self._sync_dir()
         try:
-            r = subprocess.run(["git"] + args, cwd=str(self.project_path),
-                               capture_output=True, text=True, timeout=30)
+            r = subprocess.run(["git"] + args, cwd=str(d),
+                               capture_output=True, text=True, timeout=60,
+                               encoding="utf-8", errors="replace")
             out = (r.stdout + r.stderr).strip()
-            if r.returncode == 0:
-                if cb_ok: cb_ok(out)
-                return out
-            else:
-                self.output.write_err(f"[git] ❌ {out}"); return None
+            return r.returncode, out
         except FileNotFoundError:
-            self.output.write_err("[git] ❌ git introuvable dans le PATH !"); return None
+            return -1, "git introuvable dans le PATH"
         except Exception as e:
-            self.output.write_err(f"[git] ❌ {e}"); return None
+            return -1, str(e)
+
+    def _inject_token_in_url(self, url: str, token: str) -> str:
+        """Injecte le token dans l'URL https://github.com/… pour l'auth sans SSH."""
+        if token and "github.com" in url and url.startswith("https://"):
+            url = url.replace("https://", f"https://oauth2:{token}@", 1)
+        return url
+
+    # ── Clone / Connexion ─────────────────────────────────────────
+
+    def _clone_or_connect(self):
+        remote = self.remote_edit.text().strip()
+        if not remote:
+            QMessageBox.warning(self, "Remote manquant", "Entrez l'URL du dépôt GitHub."); return
+        token  = self.token_edit.text().strip()
+        branch = self.branch_edit.text().strip() or "main"
+        sd = self._sync_dir(); sd.mkdir(parents=True, exist_ok=True)
+
+        self.clone_btn.setEnabled(False)
+        self.gh_progress.show()
+        auth_url = self._inject_token_in_url(remote, token)
+
+        def _do():
+            if (sd / ".git").exists():
+                # Dépôt déjà initialisé → juste mettre à jour le remote
+                self._git(["remote", "set-url", "origin", auth_url])
+                rc, out = self._git(["fetch", "origin"])
+                if rc == 0:
+                    self.output.write_ok(f"[git] ✅ Dépôt déjà connecté, remote mis à jour.")
+                else:
+                    self.output.write_err(f"[git] Fetch : {out}")
+            else:
+                # Cloner dans le dossier de sync
+                self.output.write_info(f"[git] Clone {remote} → {sd} …")
+                rc, out = self._git(["clone", auth_url, ".", "--branch", branch,
+                                     "--no-single-branch"], cwd=sd)
+                if rc != 0:
+                    # Le dépôt est peut-être vide ou la branche n'existe pas
+                    self.output.write_warn(f"[git] Clone standard échoué ({out}), init vide …")
+                    self._git(["init"], cwd=sd)
+                    self._git(["remote", "add", "origin", auth_url], cwd=sd)
+                    self._git(["fetch", "origin"], cwd=sd)
+                    rc2, _ = self._git(["checkout", "-b", branch], cwd=sd)
+                    self.output.write_ok("[git] ✅ Dépôt initialisé (vide).")
+                else:
+                    self.output.write_ok(f"[git] ✅ Clone réussi → {sd}")
+
+            # Configurer user si nécessaire
+            rc_e, val_e = self._git(["config", "user.email"])
+            if not val_e.strip():
+                self._git(["config", "user.email", "devstudio@local"])
+                self._git(["config", "user.name",  "DevStudio Pro"])
+
+            QTimer.singleShot(0, lambda: (
+                self.gh_progress.hide(),
+                self.clone_btn.setEnabled(True),
+                self._update_sync_info(),
+                self._git_status()
+            ))
+
+        threading.Thread(target=_do, daemon=True).start()
+
+    def _pull(self):
+        sd = self._sync_dir()
+        if not (sd / ".git").exists():
+            QMessageBox.warning(self, "Pas de dépôt", "Clonez d'abord le dépôt."); return
+        token  = self.token_edit.text().strip()
+        remote = self.remote_edit.text().strip()
+        if remote:
+            auth_url = self._inject_token_in_url(remote, token)
+            self._git(["remote", "set-url", "origin", auth_url])
+        branch = self.branch_edit.text().strip() or "main"
+        self.gh_progress.show()
+        def _do():
+            rc, out = self._git(["pull", "origin", branch, "--rebase"])
+            QTimer.singleShot(0, lambda: (
+                self.gh_progress.hide(),
+                self.output.write_ok(f"[git] Pull : {out}") if rc == 0
+                    else self.output.write_err(f"[git] Pull échoué : {out}"),
+                self._git_status()
+            ))
+        threading.Thread(target=_do, daemon=True).start()
+
+    # ── Sync files ────────────────────────────────────────────────
+
+    def _sync_files_to_repo(self) -> int:
+        """
+        Copie les fichiers listés dans github_files.txt du projet vers le sync folder.
+        Retourne le nombre de fichiers copiés/mis à jour.
+        """
+        if not self.project_path: return 0
+        sd = self._sync_dir()
+        # Sauvegarder d'abord depuis le widget si non vide
+        txt = self.files_edit.toPlainText().strip()
+        if txt:
+            self._save_files_list([l.strip() for l in txt.splitlines() if l.strip()])
+        file_patterns = self._load_files_list()
+        if not file_patterns:
+            # Défaut : fichiers typiques
+            file_patterns = [
+                "*.py", "*.pyw", "*.md", "*.txt", "LICENSE", ".gitignore",
+                "run.bat", "run.sh", "assets/**"
+            ]
+        import glob as _glob
+        copied = 0
+        for pat in file_patterns:
+            matches = list(self.project_path.glob(pat))
+            if not matches:
+                # Essai chemin direct
+                direct = self.project_path / pat
+                if direct.exists(): matches = [direct]
+            for src in matches:
+                if ".devstudio" in src.parts: continue
+                try:
+                    rel = src.relative_to(self.project_path)
+                    dst = sd / rel
+                    dst.parent.mkdir(parents=True, exist_ok=True)
+                    if src.is_file():
+                        # Copier seulement si contenu différent
+                        if not dst.exists() or dst.read_bytes() != src.read_bytes():
+                            shutil.copy2(src, dst)
+                            copied += 1
+                except Exception:
+                    pass
+        return copied
+
+    # ── Status + Commit + Push ────────────────────────────────────
 
     def _git_status(self):
-        if not self.project_path: return
-        out = self._git(["status", "--short"])
-        if out is not None:
-            lines = len(out.splitlines()) if out else 0
+        sd = self._sync_dir()
+        if not (sd / ".git").exists():
+            self.git_status_lbl.setText("État : dépôt non initialisé")
+            return
+        rc, out = self._git(["status", "--short"])
+        if rc == 0:
+            lines = [l for l in out.splitlines() if l.strip()]
             self.git_status_lbl.setText(
-                f"État : {lines} fichier(s) modifié(s)" if lines else "État : dépôt propre ✓"
-            )
-            if out: self.output.write_info(f"[git] status :\n{out}")
+                f"État : {len(lines)} fichier(s) modifié(s)" if lines else "État : dépôt propre ✓")
+            if lines: self.output.write_info(f"[git] status :\n{out}")
 
-    def _git_commit(self):
+    def _sync_and_push(self):
+        sd = self._sync_dir()
+        if not (sd / ".git").exists():
+            QMessageBox.warning(self, "Pas de dépôt",
+                "Clonez d'abord le dépôt via 'Cloner / Connecter'."); return
         msg = self.commit_edit.text().strip()
-        if not msg: QMessageBox.warning(self, "Message vide", "Entrez un message de commit."); return
-        if self._git(["add", "-A"]) is not None:
-            r = self._git(["commit", "-m", msg])
-            if r is not None:
-                self.output.write_ok(f"[git] ✅ Commit : {msg}")
-                self.commit_edit.clear(); self._git_status()
-
-    def _git_push(self):
+        if not msg:
+            QMessageBox.warning(self, "Message vide", "Entrez un message de commit."); return
+        token  = self.token_edit.text().strip()
+        remote = self.remote_edit.text().strip()
         branch = self.branch_edit.text().strip() or "main"
-        # Si la branche n'existe pas encore (dépôt vide), on force la création
-        r = self._git(["push", "-u", "origin", f"HEAD:{branch}"])
-        if r is not None: self.output.write_ok(f"[git] ✅ Push → origin/{branch}")
+
+        self.sync_push_btn.setEnabled(False)
+        self.gh_progress.show()
+
+        def _do():
+            # 1. Injecter token dans remote
+            if remote:
+                auth_url = self._inject_token_in_url(remote, token)
+                self._git(["remote", "set-url", "origin", auth_url])
+
+            # 2. Synchroniser les fichiers
+            n = self._sync_files_to_repo()
+            self.output.write_info(f"[git] {n} fichier(s) synchronisé(s) → {self._sync_dir()}")
+
+            # 3. git add -A
+            self._git(["add", "-A"])
+
+            # 4. git commit
+            rc_c, out_c = self._git(["commit", "-m", msg])
+            if rc_c == 0:
+                self.output.write_ok(f"[git] ✅ Commit : {msg}")
+            else:
+                if "nothing to commit" in out_c:
+                    self.output.write_info("[git] Rien à commiter (aucun changement détecté).")
+                else:
+                    self.output.write_err(f"[git] Commit échoué : {out_c}")
+
+            # 5. git push
+            self.output.write_info(f"[git] Push vers origin/{branch} …")
+            rc_p, out_p = self._git(["push", "-u", "origin", f"HEAD:{branch}"])
+            if rc_p == 0:
+                self.output.write_ok(f"[git] ✅ Push réussi → {remote or 'origin'}/{branch}")
+            else:
+                self.output.write_err(f"[git] ❌ Push échoué : {out_p}")
+                self.output.write_warn(
+                    "[git] Causes possibles : token invalide, pas les droits d'écriture,\n"
+                    "       ou le dépôt a des commits que vous n'avez pas en local (faites un Pull d'abord).")
+
+            QTimer.singleShot(0, lambda: (
+                self.gh_progress.hide(),
+                self.sync_push_btn.setEnabled(True),
+                self.commit_edit.clear(),
+                self._git_status()
+            ))
+
+        threading.Thread(target=_do, daemon=True).start()
+
+    # ── Release ───────────────────────────────────────────────────
 
     def _browse_asset(self):
         p, _ = QFileDialog.getOpenFileName(self, "Choisir le fichier joint",
-                                           str(self.project_path or Path.home()),
-                                           "Fichiers (*.jar *.exe *.zip *.tar.gz);;Tous (*.*)")
+            str(self.project_path or Path.home()),
+            "Fichiers (*.jar *.exe *.zip *.tar.gz);;Tous (*.*)")
         if p: self.asset_path_edit.setText(p)
 
     def _parse_remote(self) -> Optional[tuple[str,str]]:
-        """Retourne (owner, repo) depuis git remote origin."""
-        out = self._git(["remote", "get-url", "origin"])
-        if not out: return None
-        m = re.search(r'github\.com[:/]([^/]+)/([^/.]+?)(?:\.git)?$', out)
+        url = self.remote_edit.text().strip()
+        if not url:
+            rc, url = self._git(["remote", "get-url", "origin"])
+            if rc != 0: return None
+        m = re.search(r'github\.com[:/]([^/]+)/([^/.]+?)(?:\.git)?$', url)
         return (m.group(1), m.group(2)) if m else None
 
     def _create_release(self):
         token = self.token_edit.text().strip()
         if not token:
             QMessageBox.warning(self, "Token manquant", "Entrez votre token GitHub."); return
-        tag  = self.tag_edit.text().strip()
+        tag = self.tag_edit.text().strip()
         if not tag:
-            QMessageBox.warning(self, "Tag manquant", "Entrez un tag (ex: v1.0.0)."); return
+            QMessageBox.warning(self, "Tag manquant", "Entrez un tag ex: v1.0.0"); return
         info = self._parse_remote()
         if not info:
-            QMessageBox.warning(self, "Remote introuvable", "Impossible de trouver github.com dans git remote origin."); return
+            QMessageBox.warning(self, "Remote introuvable",
+                "Impossible de détecter owner/repo depuis l'URL remote."); return
         owner, repo = info
-        name   = self.rel_name_edit.text().strip() or tag
-        notes  = self.rel_notes.text().strip()
-        pre    = self.prerelease_chk.isChecked()
-        asset  = self.asset_path_edit.text().strip()
-
-        # Tag local (ignore l'erreur si déjà existant)
-        self._git(["tag", tag])
-        # Push avec HEAD:branch pour gérer les dépôts vides / branches non créées
+        name  = self.rel_name_edit.text().strip() or tag
+        notes = self.rel_notes.text().strip()
+        pre   = self.prerelease_chk.isChecked()
+        asset = self.asset_path_edit.text().strip()
         branch = self.branch_edit.text().strip() or "main"
-        self._git(["push", "-u", "origin", f"HEAD:{branch}", "--tags"])
+
+        # Push le tag
+        self._git(["tag", "-f", tag])
+        self._git(["push", "origin", f"HEAD:{branch}", "--tags", "--force"])
 
         self.gh_progress.show()
         self.output.write_info(f"[github] Création de la release {tag} ({owner}/{repo}) …")
 
         def _do():
             import urllib.request as _ur, urllib.error as _ue, json as _j, urllib.parse as _up
-            headers = {"Authorization": f"token {token}", "Content-Type": "application/json",
-                       "User-Agent": "DevStudioPro"}
+            hdrs = {"Authorization": f"token {token}", "Content-Type": "application/json",
+                    "User-Agent": "DevStudioPro"}
             try:
-                # ── Vérifier si la release existe déjà ───────────────────────
-                list_req = _ur.Request(
-                    f"https://api.github.com/repos/{owner}/{repo}/releases/tags/{tag}",
-                    headers=headers
-                )
+                # Vérifier si la release existe
                 rel_data = None
                 try:
-                    with _ur.urlopen(list_req, timeout=10) as r:
+                    req = _ur.Request(
+                        f"https://api.github.com/repos/{owner}/{repo}/releases/tags/{tag}",
+                        headers=hdrs)
+                    with _ur.urlopen(req, timeout=10) as r:
                         rel_data = _j.loads(r.read())
-                    self.output.write_info(f"[github] Release {tag} déjà existante — on la réutilise.")
+                    self.output.write_info(f"[github] Release {tag} existante — réutilisation.")
                 except _ue.HTTPError as e:
                     if e.code != 404: raise
 
-                # ── Créer la release si elle n'existe pas ─────────────────────
                 if rel_data is None:
                     payload = _j.dumps({
                         "tag_name": tag, "name": name,
-                        "body": notes, "prerelease": pre
+                        "body": notes, "prerelease": pre,
+                        "target_commitish": branch
                     }).encode()
                     req = _ur.Request(
                         f"https://api.github.com/repos/{owner}/{repo}/releases",
-                        data=payload, headers=headers, method="POST"
-                    )
-                    with _ur.urlopen(req, timeout=20) as resp:
-                        rel_data = _j.loads(resp.read())
+                        data=payload, headers=hdrs, method="POST")
+                    with _ur.urlopen(req, timeout=20) as r:
+                        rel_data = _j.loads(r.read())
                     self.output.write_ok(f"[github] ✅ Release créée : {rel_data['html_url']}")
 
                 upload_url = rel_data["upload_url"].split("{")[0]
 
-                # ── Upload de l'asset ─────────────────────────────────────────
                 if asset and Path(asset).exists():
                     ap = Path(asset)
-                    # URL-encoder le nom pour gérer les espaces et caractères spéciaux
-                    safe_name = _up.quote(ap.name, safe="")
+                    safe = _up.quote(ap.name, safe="")
                     self.output.write_info(f"[github] Upload de {ap.name} …")
                     with open(ap, "rb") as f: data = f.read()
-                    up_req = _ur.Request(
-                        f"{upload_url}?name={safe_name}",
-                        data=data,
-                        headers={**headers, "Content-Type": "application/octet-stream"},
-                        method="POST"
-                    )
-                    with _ur.urlopen(up_req, timeout=120) as resp2:
-                        up = _j.loads(resp2.read())
-                        self.output.write_ok(f"[github] ✅ Asset uploadé : {up.get('browser_download_url','')}")
+                    ureq = _ur.Request(f"{upload_url}?name={safe}", data=data,
+                                       headers={**hdrs, "Content-Type": "application/octet-stream"},
+                                       method="POST")
+                    with _ur.urlopen(ureq, timeout=120) as r2:
+                        up = _j.loads(r2.read())
+                        self.output.write_ok(f"[github] ✅ Asset : {up.get('browser_download_url','')}")
 
             except _ue.HTTPError as e:
                 self.output.write_err(f"[github] ❌ HTTP {e.code} : {e.read().decode()[:300]}")
             except Exception as e:
                 self.output.write_err(f"[github] ❌ {e}")
             finally:
-                self.gh_progress.hide()
+                QTimer.singleShot(0, self.gh_progress.hide)
 
         threading.Thread(target=_do, daemon=True).start()
+
+    # ── set_project ───────────────────────────────────────────────
+
+    def set_project(self, path: Path):
+        self.project_path = path
+        # Charger les fichiers de config existants
+        fc = self._files_config()
+        if fc.exists():
+            self.files_edit.setPlainText(fc.read_text(encoding="utf-8"))
+        else:
+            # Remplir avec des valeurs par défaut sensées
+            self.files_edit.setPlainText(
+                "DevStudioPro.pyw\nrun.bat\nrun.sh\nREADME.md\nLICENSE\n.gitignore\nassets/")
+        # Détecter remote existant dans le sync folder
+        sd = self._sync_dir()
+        if (sd / ".git").exists():
+            rc, url = self._git(["remote", "get-url", "origin"])
+            if rc == 0 and url and not self.remote_edit.text():
+                clean = re.sub(r'oauth2:[^@]+@', '', url)
+                self.remote_edit.setText(clean)
+                self.settings.setValue("github_remote", clean)
+        self._update_sync_info()
+        self._git_status()
+
+
 
 # ════════════════════════════════════════════════════════════════
 #  INSTANCES MINECRAFT — helpers
@@ -3651,6 +4077,84 @@ class InstancePanel(QWidget):
     def stop_all(self): self._stop_game(); self._stop_server()
 
 
+
+# ════════════════════════════════════════════════════════════════
+#  SYSTÈME DE MODULES
+# ════════════════════════════════════════════════════════════════
+
+AVAILABLE_MODULES = {
+    "python":    {"label": "🐍 Python",            "desc": "Build .exe, auto-dépendances, versioning DEV/STABLE"},
+    "java_mc":   {"label": "⛏ Minecraft Java",     "desc": "Build mods Forge/NeoForge/Fabric/Quilt, JDK auto"},
+    "instances": {"label": "🎮 Instances MC",       "desc": "Instances Minecraft offline, serveur local LAN"},
+    "github":    {"label": "🐙 GitHub",             "desc": "Push/pull/release GitHub, sync par dossier"},
+    "updater":   {"label": "🔄 MàJ automatique",    "desc": "Générateur d'installeur + launcher avec MàJ auto"},
+}
+
+class ModuleManager:
+    """Gère l'activation/désactivation des modules. Persisté dans QSettings."""
+    _DEFAULT = {"python": True, "java_mc": True, "instances": True, "github": True, "updater": True}
+
+    def __init__(self, settings: QSettings):
+        self._s = settings
+
+    def is_enabled(self, key: str) -> bool:
+        return self._s.value(f"module_{key}", self._DEFAULT.get(key, True), type=bool)
+
+    def set_enabled(self, key: str, val: bool):
+        self._s.setValue(f"module_{key}", val)
+
+    def enabled_keys(self) -> list[str]:
+        return [k for k in AVAILABLE_MODULES if self.is_enabled(k)]
+
+
+class ModulesPanel(QWidget):
+    """Onglet ⚙ Modules — active/désactive les fonctionnalités."""
+    modules_changed = pyqtSignal()
+
+    def __init__(self, settings: QSettings, parent=None):
+        super().__init__(parent)
+        self._mgr = ModuleManager(settings)
+        self._checks: dict[str, QCheckBox] = {}
+        lay = QVBoxLayout(self); lay.setContentsMargins(8,8,8,8); lay.setSpacing(8)
+
+        title = QLabel("MODULES INSTALLÉS"); title.setObjectName("section_title")
+        lay.addWidget(title)
+        lay.addWidget(self._small_lbl(
+            "Activez ou désactivez les modules selon vos besoins.\n"
+            "Les onglets correspondants apparaissent/disparaissent après redémarrage (ou immédiatement)."))
+
+        for key, info in AVAILABLE_MODULES.items():
+            card = QWidget()
+            card.setStyleSheet(f"background:{DARK['bg2']};border-radius:6px;border:1px solid {DARK['border']};")
+            cl = QHBoxLayout(card); cl.setContentsMargins(12,8,12,8)
+            chk = QCheckBox(info["label"])
+            chk.setChecked(self._mgr.is_enabled(key))
+            chk.setStyleSheet("font-size:13px;font-weight:bold;")
+            chk.toggled.connect(lambda v, k=key: self._on_toggle(k, v))
+            self._checks[key] = chk
+            cl.addWidget(chk)
+            desc = QLabel(info["desc"])
+            desc.setStyleSheet(f"color:{DARK['text_dim']};font-size:11px;")
+            cl.addWidget(desc); cl.addStretch()
+            lay.addWidget(card)
+
+        info_lbl = QLabel("💡 Les modules désactivés peuvent être réactivés à tout moment.")
+        info_lbl.setStyleSheet(f"color:{DARK['text_dim']};font-size:11px;font-style:italic;")
+        lay.addWidget(info_lbl); lay.addStretch()
+
+    @staticmethod
+    def _small_lbl(txt):
+        l = QLabel(txt); l.setStyleSheet(f"color:{DARK['text_dim']};font-size:11px;"); return l
+
+    def _on_toggle(self, key: str, val: bool):
+        self._mgr.set_enabled(key, val)
+        self.modules_changed.emit()
+
+    def mgr(self) -> ModuleManager:
+        return self._mgr
+
+
+
 # ════════════════════════════════════════════════════════════════
 #  FENÊTRE PRINCIPALE
 # ════════════════════════════════════════════════════════════════
@@ -3661,6 +4165,7 @@ class MainWindow(QMainWindow):
         self._project_root = project_root or Path.cwd()
         self._run_worker: Optional[RunWorker] = None
         self._settings = QSettings("FFS", "DevStudioPro")
+        self._modules = ModuleManager(self._settings)
 
         self.setWindowTitle(f"DevStudio Pro — {self._project_root.name}")
         self.resize(1440, 900)
@@ -3672,6 +4177,22 @@ class MainWindow(QMainWindow):
         self._load_project(self._project_root)
         # Wire MC build panel → instance panel for auto-copy
         self._mc_panel._inst_panel_ref = self._inst_panel
+
+    def _refresh_tabs(self):
+        """Affiche/cache les onglets selon les modules activés."""
+        mgr = self._modules
+        self._mode_tabs.clear()
+        TAB_MAP = [
+            ("python",    self._py_panel,   "🐍  Python"),
+            ("java_mc",   self._mc_panel,   "⛏  Minecraft"),
+            ("instances", self._inst_panel, "🎮  Instances"),
+            ("github",    self._gh_panel,   "🐙  GitHub"),
+        ]
+        for key, panel, label in TAB_MAP:
+            if mgr.is_enabled(key):
+                self._mode_tabs.addTab(panel, label)
+        # L'onglet Modules est toujours présent
+        self._mode_tabs.addTab(self._mod_panel, "⚙  Modules")
 
     # ── Build UI ─────────────────────────────────────────────────
 
@@ -3737,18 +4258,17 @@ class MainWindow(QMainWindow):
         bottom = QWidget(); blay = QVBoxLayout(bottom); blay.setContentsMargins(4,4,4,4); blay.setSpacing(4)
         self._output = OutputPanel(); blay.addWidget(self._output, 2)
 
-        # Onglets de mode (Python / Minecraft / GitHub)
-        self._mode_tabs = QTabWidget()
-        self._py_panel = PythonBuildPanel(self._project_root, self._output)
-        self._mc_panel = MinecraftBuildPanel(self._output, self._settings)
-        self._gh_panel = GitHubPanel(self._output, self._settings)
+        # ── Onglets de mode (gérés par ModuleManager) ──────────────────
+        self._mode_tabs  = QTabWidget()
+        self._py_panel   = PythonBuildPanel(self._project_root, self._output)
+        self._mc_panel   = MinecraftBuildPanel(self._output, self._settings)
+        self._gh_panel   = GitHubPanel(self._output, self._settings)
         self._inst_panel = InstancePanel(self._output, self._settings)
-        self._mode_tabs.addTab(self._py_panel,   "🐍  Python")
-        self._mode_tabs.addTab(self._mc_panel,   "⛏  Minecraft")
-        self._mode_tabs.addTab(self._inst_panel, "🎮  Instances")
-        self._mode_tabs.addTab(self._gh_panel,   "🐙  GitHub")
+        self._mod_panel  = ModulesPanel(self._settings)
+        self._mod_panel.modules_changed.connect(self._refresh_tabs)
         self._mode_tabs.setMinimumHeight(220)
         blay.addWidget(self._mode_tabs)
+        self._refresh_tabs()  # afficher les onglets selon les modules activés
 
         self._v_split.addWidget(bottom)
         self._v_split.setSizes([640, 300])
@@ -3809,7 +4329,7 @@ class MainWindow(QMainWindow):
 
         gm = mb.addMenu("GitHub")
         gm.addAction(self._action(self, "git status",          self._gh_panel._git_status))
-        gm.addAction(self._action(self, "Commit + Push",        self._gh_panel._git_push))
+        gm.addAction(self._action(self, "Synchroniser + Push",  self._gh_panel._sync_and_push))
         gm.addAction(self._action(self, "Créer Release…",       self._gh_panel._create_release))
 
         lm = mb.addMenu("Logs")
@@ -3836,7 +4356,7 @@ class MainWindow(QMainWindow):
         act("🎮", "Lancer Minecraft (solo)",    self._inst_panel._launch_solo, 36)
         act("🖥",  "Démarrer serveur local",     self._inst_panel._start_server, 32)
         tb.addSeparator()
-        act("⬆",  "git push",                  self._gh_panel._git_push)
+        act("⬆",  "Synchroniser + Push",       self._gh_panel._sync_and_push)
         act("🚀", "Créer Release GitHub",       self._gh_panel._create_release, 36)
 
     # ── Onglets éditeur ───────────────────────────────────────────
