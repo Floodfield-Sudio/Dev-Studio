@@ -40,32 +40,17 @@
             color: #79c0ff;
         }
 
-        code {
-            background-color: rgba(110, 118, 129, 0.4);
-            padding: 0.2em 0.4em;
-            border-radius: 6px;
-            font-size: 85%;
-            font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
-        }
-
         pre {
             background-color: #0d1117 !important;
             border: 1px solid var(--border);
             padding: 16px;
-            padding-top: 36px; /* Espace pour le bouton copier */
+            padding-top: 40px;
             border-radius: 8px;
             overflow-x: auto;
             margin: 16px 0;
-            position: relative; /* Nécessaire pour le bouton */
+            position: relative;
         }
 
-        pre code {
-            background-color: transparent;
-            padding: 0;
-            font-size: 14px;
-        }
-
-        /* Styles pour le bouton de copie */
         .copy-button {
             position: absolute;
             top: 8px;
@@ -77,250 +62,96 @@
             padding: 4px 8px;
             font-size: 12px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            transition: all 0.2s ease;
-        }
-
-        .copy-button:hover {
-            background-color: var(--border);
-            color: var(--text-primary);
+            z-index: 10;
         }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center p-6 md:p-12">
 
-    <!-- Navigation -->
     <nav class="w-full max-w-4xl mb-8">
         <a href="https://floodfield-sudio.github.io/FFS.index/" class="flex items-center text-sm font-semibold">
             <span class="mr-2">←</span> Retour à l'accueil
         </a>
     </nav>
 
-    <!-- Header -->
-    <header class="w-full max-w-4xl mb-12 border-b border-[#30363d] pb-8">
+    <header class="w-full max-w-4xl mb-12 border-b border-[#30363d] pb-8 text-center md:text-left">
         <h1 class="text-4xl font-bold text-white mb-4">
-            <a href="https://github.com/Floodfield-Sudio/Dev-Studio" class="hover:text-[#58a6ff]">DevStudio Pro</a>
+            <a href="https://github.com/Floodfield-Sudio/Dev-Studio" class="hover:text-[#58a6ff]">🛠 DevStudio Pro</a>
         </h1>
-        
-        <p class="text-xl text-gray-300 mb-6">
-            <strong class="text-white">IDE Python + Builder de mods Minecraft</strong> — tout-en-un, sans droits administrateur.
+        <p class="text-xl text-gray-300">
+            <strong class="text-white">IDE Python + Builder de mods Minecraft</strong> — sans droits administrateur.
         </p>
-
-        <div class="flex flex-wrap gap-2 mb-2">
-            <a href="https://github.com/Floodfield-Sudio/Dev-Studio/blob/main/LICENSE" target="_blank">
-                <img src="https://img.shields.io/badge/License-Polyform%20NC%201.0-blue.svg" alt="License">
-            </a>
-            <a href="https://python.org" target="_blank">
-                <img src="https://img.shields.io/badge/Python-3.10%2B-yellow.svg" alt="Python">
-            </a>
-            <img src="https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg" alt="Platform">
-        </div>
     </header>
 
-    <!-- Main Content -->
     <main class="w-full max-w-4xl space-y-8">
         
-        <!-- Fonctionnalités -->
         <section class="glass-card p-6 md:p-8">
-            <h2 class="text-2xl font-bold text-white mb-8 border-b border-[#30363d] pb-2">✨ Fonctionnalités</h2>
-            
+            <h2 class="text-2xl font-bold text-white mb-8 border-b border-[#30363d] pb-2">✨ Fonctionnalités Clés</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <!-- Python -->
                 <div>
-                    <h3 class="text-xl font-semibold text-white mb-4 flex items-center">
-                        <span class="mr-2">🐍</span> Mode Python
-                    </h3>
+                    <h3 class="text-xl font-semibold text-white mb-4 flex items-center">🐍 Mode Python</h3>
                     <ul class="list-disc pl-6 space-y-2 text-gray-300">
-                        <li>Éditeur multi-onglets avec coloration syntaxique complète (mots-clés, builtins, docstrings, f-strings…)</li>
-                        <li>Numéros de ligne, repli des blocs <code>class</code>/<code>def</code>, surbrillance ligne courante</li>
-                        <li>Auto-injection des dépendances pip à la sauvegarde</li>
-                        <li>Build <code>.exe</code> / binaire Linux/macOS via PyInstaller</li>
-                        <li>Système de versions dev → stable</li>
-                        <li><span class="italic text-gray-400">MàJ automatique de l'app publiée (via GitHub Releases) - En cours de développement</span></li>
+                        <li>Éditeur multi-onglets + Coloration complète</li>
+                        <li>Auto-injection des dépendances pip</li>
+                        <li>Build <code>.exe</code> via PyInstaller intégré</li>
+                        <li>Génération d'installeurs graphiques <code>.pyw</code></li>
                     </ul>
                 </div>
-
-                <!-- Minecraft -->
                 <div>
-                    <h3 class="text-xl font-semibold text-white mb-4 flex items-center">
-                        <span class="mr-2">⛏</span> Mode Minecraft
-                    </h3>
+                    <h3 class="text-xl font-semibold text-white mb-4 flex items-center">⛏ Mode Minecraft</h3>
                     <ul class="list-disc pl-6 space-y-2 text-gray-300">
-                        <li>Loaders supportés : <strong class="text-white">Forge</strong>, <strong class="text-white">NeoForge</strong>, <strong class="text-white">Fabric</strong>, <strong class="text-white">Quilt</strong></li>
-                        <li>Versions : 1.7.10, 1.12.2, 1.16.5, 1.18.2, 1.19.x, 1.20.x, 1.21.x</li>
-                        <li>JDK 8 / 17 / 21 téléchargé automatiquement (sans droits admin)</li>
-                        <li>Compilation <code>gradlew build</code> avec logs en temps réel</li>
-                        <li>Injection automatique du Gradle wrapper depuis le MDK en cache</li>
-                    </ul>
-                </div>
-
-                <!-- Instances -->
-                <div>
-                    <h3 class="text-xl font-semibold text-white mb-4 flex items-center">
-                        <span class="mr-2">🎮</span> Instances Minecraft
-                    </h3>
-                    <ul class="list-disc pl-6 space-y-2 text-gray-300">
-                        <li>Instances isolées Vanilla / Forge / NeoForge / Fabric / Quilt</li>
-                        <li>Mode <strong class="text-white">OFFLINE total</strong> — aucun compte Mojang requis</li>
-                        <li>Lancement solo (singleplayer) hors-ligne</li>
-                        <li>Serveur local dédié (LAN / multijoueur, <code>online-mode=false</code>)</li>
-                        <li>Copie automatique du mod compilé dans chaque instance</li>
-                        <li>Terminal serveur intégré (commandes <code>/op</code>, <code>/say</code>, etc.)</li>
-                    </ul>
-                </div>
-
-                <!-- GitHub -->
-                <div>
-                    <h3 class="text-xl font-semibold text-white mb-4 flex items-center">
-                        <span class="mr-2">🐙</span> GitHub
-                    </h3>
-                    <p class="text-sm italic text-gray-400 mb-2">- en cours de développement</p>
-                    <ul class="list-disc pl-6 space-y-2 text-gray-300">
-                        <li><code>git status / add / commit / push</code></li>
-                        <li>Création de Releases GitHub avec upload automatique du <code>.jar</code> ou <code>.exe</code></li>
-                        <li>Token stocké dans les paramètres (saisi une seule fois)</li>
+                        <li>Forge, NeoForge, Fabric, Quilt</li>
+                        <li>JDK 8/17/21 portable (auto-téléchargé)</li>
+                        <li>Instances offline (pas de compte requis)</li>
+                        <li>Serveur LAN local avec terminal intégré</li>
                     </ul>
                 </div>
             </div>
         </section>
 
-        <!-- Guide d'utilisation et installation -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <section class="glass-card p-6 md:p-8">
-                <h2 class="text-2xl font-bold text-white mb-6 border-b border-[#30363d] pb-2">🚀 Installation</h2>
-                
-                <h3 class="text-lg font-semibold text-white mb-2">Windows</h3>
-                <ol class="list-decimal pl-6 space-y-2 text-gray-300 mb-6">
-                    <li>Téléchargez <a href="https://python.org">Python 3.10+</a> — cochez <strong class="text-white">"Add Python to PATH"</strong></li>
-                    <li>Téléchargez <code>DevStudioPro.pyw</code> et <code>run.bat</code> depuis les <a href="https://github.com/Floodfield-Sudio/Dev-Studio/releases">Releases</a></li>
-                    <li>Placez les deux fichiers dans le <strong class="text-white">même dossier</strong></li>
-                    <li>Double-cliquez sur <code>run.bat</code></li>
-                </ol>
-                <p class="text-sm text-gray-400 mb-6">L'app s'installe dans <code>%APPDATA%\FFS\DevStudio\</code>, PyQt6 est installé automatiquement.</p>
-
-                <h3 class="text-lg font-semibold text-white mb-2">macOS / Linux</h3>
-<pre><code># Téléchargez DevStudioPro.pyw et run.sh
-chmod +x run.sh
-./run.sh</code></pre>
-            </section>
-
-            <section class="glass-card p-6 md:p-8">
-                <h2 class="text-2xl font-bold text-white mb-6 border-b border-[#30363d] pb-2">📖 Utilisation rapide</h2>
-                
-                <h3 class="text-lg font-semibold text-white mb-2">Projet Python</h3>
-                <ol class="list-decimal pl-6 space-y-2 text-gray-300 mb-6">
-                    <li><strong class="text-white">📂 Ouvrir projet</strong> → sélectionner le dossier</li>
-                    <li>Éditer les fichiers (double-clic dans l'explorateur)</li>
-                    <li><strong class="text-white">▶ Exécuter (F5)</strong> pour tester</li>
-                    <li>Onglet <strong class="text-white">🐍 Python</strong> → renseigner Nom, version, repo</li>
-                    <li><strong class="text-white">🔧 Build DEV</strong> → génère l'exe + <code>_updater.py</code> + installeurs</li>
-                </ol>
-
-                <h3 class="text-lg font-semibold text-white mb-2">Mod Minecraft</h3>
-                <ol class="list-decimal pl-6 space-y-2 text-gray-300">
-                    <li>Ouvrir le dossier du mod (détection si <code>gradlew</code> présent)</li>
-                    <li>Onglet <strong class="text-white">⛏ Minecraft</strong> → choisir loader + version MC</li>
-                    <li>Télécharger le JDK si nécessaire (bouton auto)</li>
-                    <li><strong class="text-white">🔨 Build</strong> → compile, logs en temps réel</li>
-                    <li>Onglet <strong class="text-white">🎮 Instances</strong> → créer, installer, lancer</li>
-                </ol>
-            </section>
-        </div>
-
-        <!-- Structure Build Python -->
         <section class="glass-card p-6 md:p-8">
-            <h2 class="text-2xl font-bold text-white mb-6 border-b border-[#30363d] pb-2">📂 Structure générée (build Python)</h2>
-<pre><code>mon-projet/
-├── version_info.py     ← version courante (généré)
-├── _updater.py         ← module de MàJ auto (généré)
-├── version.json        ← canaux dev / stable (généré)
-├── install_dev.bat     ← installeur Windows (généré)
-├── install_dev.sh      ← installeur Linux/macOS (généré)
-└── dist/
-    ├── dev/
-    │   └── MonApp.exe  ← build de développement
-    └── stable/
-        └── MonApp.exe  ← build public après promotion</code></pre>
+            <h2 class="text-2xl font-bold text-white mb-6 border-b border-[#30363d] pb-2">📥 Installation</h2>
+            <h3 class="text-lg font-semibold text-white mb-2">Windows</h3>
+<pre><code># 1. Installer Python 3.10+ (Add to PATH)
+# 2. Télécharger DevStudioPro.pyw et run.bat
+# 3. Lancer run.bat</code></pre>
+            <h3 class="text-lg font-semibold text-white mt-4 mb-2">macOS / Linux</h3>
+<pre><code>chmod +x run.sh && ./run.sh</code></pre>
         </section>
 
-        <!-- Licence -->
         <section class="glass-card p-6 md:p-8">
             <h2 class="text-2xl font-bold text-white mb-4 border-b border-[#30363d] pb-2">📜 Licence</h2>
-            <p class="mb-4 text-gray-300">
-                <strong class="text-white">Polyform Noncommercial License 1.0.0</strong> — utilisation non-commerciale uniquement.
+            <p class="text-gray-300">
+                <strong class="text-white">Polyform Noncommercial License 1.0.0</strong> — Usage personnel, éducatif ou associatif autorisé. Vente interdite.
             </p>
-            <p class="mb-4 text-gray-300">
-                Vous pouvez librement utiliser, modifier et partager ce logiciel pour tout usage <strong class="text-white">personnel, éducatif, associatif ou de recherche</strong>. Tout usage commercial est interdit sans accord préalable.
-            </p>
-            <p class="text-gray-400">Voir <a href="https://github.com/Floodfield-Sudio/Dev-Studio/blob/main/LICENSE">LICENSE</a> pour le texte complet.</p>
         </section>
 
     </main>
 
-    <!-- Footer -->
     <footer class="mt-8 pb-8 text-center w-full max-w-4xl border-t border-[#30363d] pt-8">
-        <p class="text-gray-300 mb-2">
-            Développé par <a href="https://github.com/Floodfield-Sudio">Floodfield-Studios</a>.
-        </p>
-        <p class="text-gray-400 text-sm mb-4">
-            Construit avec <a href="https://pypi.org/project/PyQt6/">PyQt6</a> et <a href="https://pyinstaller.org">PyInstaller</a>.
-        </p>
-        <p class="text-gray-500 text-sm">
-            Voir nos autres projets sur <a href="https://floodfield-sudio.github.io/FFS.index/">Notre Site Web</a><br>
-            &copy; 2022 Floodfield Studios.
-        </p>
+        <p class="text-gray-300">Développé par <a href="https://github.com/Floodfield-Sudio">Floodfield-Studios</a>.</p>
+        <p class="text-gray-500 text-sm mt-4">&copy; 2022 Floodfield Studios.</p>
     </footer>
 
-    <!-- Script pour le bouton Copier -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('pre').forEach(pre => {
-                const codeElement = pre.querySelector('code');
-                if (!codeElement) return;
-
+                const codeElement = pre.querySelector('code') || pre;
                 const button = document.createElement('button');
                 button.className = 'copy-button';
-                button.innerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                    </svg> Copier`;
+                button.innerHTML = 'Copier';
                 
                 button.addEventListener('click', () => {
-                    const textToCopy = codeElement.innerText;
-                    
-                    // Méthode compatible pour copier (marche même dans les iframes sur certains navigateurs)
+                    const text = codeElement.innerText;
                     const textArea = document.createElement("textarea");
-                    textArea.value = textToCopy;
-                    textArea.style.position = "absolute";
-                    textArea.style.left = "-999999px";
+                    textArea.value = text;
                     document.body.appendChild(textArea);
                     textArea.select();
-                    
-                    try {
-                        document.execCommand('copy');
-                        
-                        // Changement d'état visuel au succès
-                        button.innerHTML = `
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg> <span class="text-green-400">Copié !</span>`;
-                        button.style.borderColor = '#3fb950';
-                        
-                        setTimeout(() => {
-                            button.innerHTML = `
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                                </svg> Copier`;
-                            button.style.borderColor = '';
-                        }, 2000);
-                    } catch (err) {
-                        console.error('Erreur lors de la copie', err);
-                    }
-                    
+                    document.execCommand('copy');
                     document.body.removeChild(textArea);
+                    button.innerHTML = '<span class="text-green-400">Copié !</span>';
+                    setTimeout(() => { button.innerHTML = 'Copier'; }, 2000);
                 });
-                
                 pre.appendChild(button);
             });
         });
