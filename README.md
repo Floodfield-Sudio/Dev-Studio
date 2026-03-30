@@ -1,147 +1,180 @@
-# [🛠 DevStudio Pro](https://github.com/Floodfield-Sudio/Dev-Studio)
+# [DevStudio Pro](https://github.com/Floodfield-Sudio/Dev-Studio)
 
 **IDE Python + Builder de mods Minecraft** — tout-en-un, sans droits administrateur.
 
 [![License: Polyform NC 1.0](https://img.shields.io/badge/License-Polyform%20NC%201.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-yellow.svg)](https://python.org)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)]()
-[![PyQt6](https://img.shields.io/badge/UI-PyQt6-41CD52.svg)](https://pypi.org/project/PyQt6/)
 
 ---
 
-## ✨ Fonctionnalités
+## Fonctionnalités
 
 ### 🐍 Mode Python
-- Éditeur multi-onglets avec coloration syntaxique complète — mots-clés, builtins, docstrings `"""` / `'''`, f-strings, commentaires
+- Éditeur multi-onglets avec coloration syntaxique complète (mots-clés, builtins, docstrings `"""` / `'''`, f-strings…)
 - Numéros de ligne, repli des blocs `class`/`def`, surbrillance ligne courante
-- Auto-injection des dépendances pip à la sauvegarde (analyse AST)
-- Build `.exe` / binaire Linux / macOS via **PyInstaller** (intégré, installation automatique)
-- Génération automatique de `_updater.py` — MàJ silencieuse depuis GitHub Releases au démarrage
-- Génération de `installer.pyw` — installeur graphique modulaire à distribuer aux utilisateurs
-- Versioning **DEV → STABLE** avec tag Git et Release GitHub en un clic
+- Auto-injection des dépendances pip à la sauvegarde
+- Build `.exe` / binaire Linux/macOS via PyInstaller (`--onefile`)
+- Système de versions **dev → stable** avec promotion en un clic
+- `_updater.py` embarqué : vérification des MàJ au démarrage via GitHub Releases
+- Génération automatique de `installer.pyw` — installeur modulaire compilable en `.exe`
 
-### ⛏ Mode Minecraft Java
+### ⛏ Mode Minecraft
 - Loaders supportés : **Forge**, **NeoForge**, **Fabric**, **Quilt**
-- Versions MC : 1.7.10, 1.12.2, 1.16.5, 1.18.2, 1.19.x, 1.20.x, 1.21.x
-- JDK 8 / 17 / 21 téléchargé automatiquement dans le dossier applicatif (sans droits admin)
-- Compilation `gradlew build` avec logs colorés temps réel
-- Injection automatique du Gradle wrapper depuis le MDK en cache (plus besoin de commiter `gradlew`)
-- Téléchargement et cache du MDK par loader/version
+- Versions : 1.7.10, 1.12.2, 1.16.5, 1.18.2, 1.19.x, 1.20.x, 1.21.x
+- JDK 8 / 17 / 21 téléchargé automatiquement (sans droits admin)
+- Compilation `gradlew build` avec logs en temps réel et coloration
+- Injection automatique du Gradle wrapper depuis le MDK en cache
+- Création de nouveaux projets mod depuis le MDK (Forge, NeoForge, Fabric, Quilt)
 
 ### 🎮 Instances Minecraft
-- Instances isolées **Vanilla / Forge / NeoForge / Fabric / Quilt**
-- Mode **OFFLINE total** — aucun compte Mojang requis, UUID déterministe
-- Réutilisation automatique des assets d'un `.minecraft` existant
-- Copie automatique du mod compilé dans les instances après build
-- Lancement solo en un clic
-- **Serveur local dédié** (LAN / multijoueur, `online-mode=false`)
-  - Terminal serveur intégré avec envoi de commandes (`/op`, `/gamemode`…)
-  - Suppression automatique du `session.lock` avant démarrage
+- Instances isolées Vanilla / Forge / NeoForge / Fabric / Quilt
+- Mode **OFFLINE total** — aucun compte Mojang requis
+- Lancement solo (singleplayer) hors-ligne
+- Serveur local dédié (LAN / multijoueur, `online-mode=false`)
+- Copie automatique du mod compilé dans chaque instance après build
+- Terminal serveur intégré (commandes `/op`, `/say`, `/stop`, etc.)
+- Ressources partagées entre toutes les instances (un seul téléchargement)
 
 ### 🐙 GitHub
-- Système de **sync par dossier** : chaque projet a son clone git local dans `.devstudio/github/`
-- Seuls les fichiers listés dans `.devstudio/github_files.txt` sont publiés — les JDK, instances, caches ne remontent jamais
-- Push vers un dépôt existant (avec ou sans fichiers déjà présents) — fusion automatique des historiques
-- Création de **Release GitHub** avec upload d'asset (`.jar`, `.exe`) — URL-encoding automatique des noms
-- Token stocké de façon persistante (QSettings)
+- Système de **sync par dossier** : seuls les fichiers listés dans `github_files.txt` sont publiés
+- Clone / connexion d'un dépôt existant (avec ou sans fichiers distants déjà présents)
+- `git add + commit + push` en un clic — **⬆ Sync + Push**
+- Pull pour récupérer les modifications distantes
+- Création de Releases GitHub avec upload automatique du `.jar` ou `.exe`
+- Token stocké dans les paramètres (saisi une seule fois)
 
 ### ⚙ Modules
-- Architecture modulaire : activez/désactivez Python, Minecraft, Instances, GitHub indépendamment
-- Les onglets correspondants apparaissent ou disparaissent dynamiquement
+- Architecture modulaire : activez/désactivez chaque fonctionnalité indépendamment
+- Modules disponibles : Python, Minecraft Java, Instances MC, GitHub, MàJ automatique
+- Extensible (C/C++, autres langages…)
 
 ---
 
-## 📥 Installation
+## Distribution
+
+### Comment ça fonctionne
+
+Le **Build DEV** (onglet 🐍 Python) génère automatiquement :
+
+| Fichier | Rôle |
+|---|---|
+| `dist/dev/MonApp.exe` | Exécutable compilé (dev) |
+| `dist/stable/MonApp.exe` | Exécutable public (après promotion) |
+| `version_info.py` | Version courante importée par l'app |
+| `_updater.py` | Module de MàJ automatique à intégrer dans votre app |
+| `version.json` | Canaux dev / stable |
+| `install_dev.bat` / `.sh` | Installeurs directs pour les utilisateurs finaux |
+| `installer.pyw` | Installeur modulaire (compilable en `.exe`) |
+
+### Intégrer les MàJ automatiques dans votre app
+
+Ajoutez ces deux lignes au démarrage de votre `main.py` :
+
+```python
+from _updater import check_and_update
+check_and_update()  # silencieux si à jour, télécharge et relance si nouvelle version
+```
+
+Au lancement, l'app vérifie GitHub Releases. Si une nouvelle version est disponible, elle se télécharge et se remplace automatiquement. Si pas d'internet → l'app démarre normalement.
+
+### Cycle de release
+
+```
+[Développement]  →  🔧 Build DEV  →  Tests
+                                        ↓
+                              🚀 Promouvoir DEV → STABLE
+                                        ↓
+                         Onglet 🐙 GitHub → Créer Release
+                         (joint dist/stable/MonApp.exe)
+                                        ↓
+                    Les utilisateurs reçoivent la MàJ automatiquement
+                    au prochain lancement de l'app
+```
+
+---
+
+## Installation
 
 ### Windows
-1. Télécharger **Python 3.10+** sur [python.org](https://python.org) — cocher *"Add to PATH"*
-2. Télécharger `DevStudioPro.pyw` et `run.bat` depuis la dernière [Release](../../releases)
-3. Double-cliquer sur `run.bat` — PyQt6 s'installe automatiquement au premier lancement
+1. Téléchargez [Python 3.10+](https://python.org) — cochez **"Add Python to PATH"**
+2. Téléchargez `DevStudioPro.pyw` et `run.bat` depuis les [Releases](../../releases)
+3. Placez les deux fichiers dans le **même dossier**
+4. Double-cliquez sur `run.bat`
+
+L'app s'installe dans `%APPDATA%\FFS\DevStudio\`, PyQt6 est installé automatiquement au premier lancement.
 
 ### macOS / Linux
 ```bash
-# Télécharger DevStudioPro.pyw et run.sh
-chmod +x run.sh && ./run.sh
-```
-
-> Les dépendances Python (PyQt6…) s'installent automatiquement dans un venv isolé.
-
----
-
-## 🗂 Structure des données
-
-```
-Windows : %USERPROFILE%\AppData\Roaming\FFS\DevStudio\
-macOS   : ~/Library/Application Support/FFS/DevStudio/
-Linux   : ~/.local/share/FFS/DevStudio/
-
-FFS\DevStudio\
-├── jdk\jdk8|jdk17|jdk21\     ← JDKs partagés (téléchargés une seule fois)
-├── mdk\<Loader>\<version>\   ← MDK Forge/Fabric… en cache
-├── mc\
-│   ├── versions\             ← Client MC partagé entre toutes les instances
-│   ├── libraries\            ← Libs Maven partagées
-│   ├── assets\               ← Assets partagés
-│   ├── forge_installers\     ← Installeurs Forge réutilisés
-│   └── instances\<nom>\
-│       ├── game\             ← Dossier .minecraft de l'instance
-│       └── server\           ← Serveur dédié de l'instance
-└── logs\                     ← Logs de session horodatés
+# Téléchargez DevStudioPro.pyw et run.sh dans le même dossier
+chmod +x run.sh
+./run.sh
 ```
 
 ---
 
-## 🔨 Build depuis les sources
+## Utilisation rapide
 
-```bash
-git clone https://github.com/Floodfield-Sudio/Dev-Studio.git
-cd Dev-Studio
-python DevStudioPro.pyw
+### Projet Python
+1. **📂 Ouvrir projet** → sélectionner le dossier
+2. Éditer les fichiers (double-clic dans l'explorateur)
+3. **▶ Exécuter (F5)** pour tester
+4. Onglet **🐍 Python** → renseigner Nom, version, GitHub repo, point d'entrée
+5. **🔧 Build DEV** → génère l'exe + `_updater.py` + `installer.pyw`
+6. Tester le build, puis **🚀 Promouvoir DEV → STABLE**
+7. Onglet **🐙 GitHub** → **Créer Release** + joindre l'exe
+
+### Mod Minecraft
+1. Ouvrir le dossier du mod (détection automatique si `gradlew` présent)
+2. Onglet **⛏ Minecraft** → choisir loader + version MC
+3. Télécharger le JDK si nécessaire (bouton automatique)
+4. **⬇ Télécharger MDK** (une seule fois par loader/version)
+5. **🔨 Build** → compile, les logs défilent en temps réel
+6. Onglet **🎮 Instances** → créer une instance, installer, lancer en solo ou serveur LAN
+
+### Publier sur GitHub
+1. Onglet **🐙 GitHub** → renseigner Remote URL + Token
+2. **⬇ Cloner / Connecter** le dépôt (gère les dépôts déjà existants avec fichiers)
+3. Lister les fichiers à publier dans la zone **Fichiers publiés**
+4. Écrire un message de commit → **⬆ Sync + Push**
+
+---
+
+## Structure générée (build Python)
+
+```
+mon-projet/
+├── main.py                 ← votre code
+├── version_info.py         ← version courante (généré automatiquement)
+├── _updater.py             ← module MàJ auto (généré — à importer dans main.py)
+├── version.json            ← canaux dev / stable (généré)
+├── installer.pyw           ← installeur modulaire (généré — compilable en .exe)
+├── install_dev.bat         ← installeur direct Windows (généré)
+├── install_dev.sh          ← installeur direct Linux/macOS (généré)
+├── .devstudio/
+│   ├── github/             ← clone git local (dossier de sync GitHub)
+│   └── github_files.txt    ← liste des fichiers à publier sur GitHub
+└── dist/
+    ├── dev/
+    │   └── MonApp.exe      ← build de développement
+    └── stable/
+        └── MonApp.exe      ← build public (après promotion DEV → STABLE)
 ```
 
-Aucune dépendance à installer manuellement — tout est géré au démarrage.
+---
+
+## Licence
+
+**Polyform Noncommercial License 1.0.0** — utilisation non-commerciale uniquement.
+
+Vous pouvez librement utiliser, modifier et partager ce logiciel pour tout usage **personnel, éducatif, associatif ou de recherche**. Tout usage commercial est interdit sans accord préalable.
+
+Voir [LICENSE](LICENSE) pour le texte complet.
 
 ---
 
-## ⚙ Modules disponibles
+## Crédits
 
-| Module | Description |
-|---|---|
-| 🐍 **Python** | IDE, build EXE, versioning, MàJ auto |
-| ⛏ **Minecraft Java** | Build mods Forge/NeoForge/Fabric/Quilt |
-| 🎮 **Instances MC** | Instances offline, serveur LAN |
-| 🐙 **GitHub** | Sync, push, releases |
-| 🔄 **MàJ automatique** | Générateur d'installeur + launcher |
-
----
-
-## 📸 Aperçu
-
-> *(screenshots à venir)*
-
----
-
-## 🔮 Roadmap
-
-- [ ] Support C/C++ (compilation CMake)
-- [ ] Support NeoForge 1.21.4 instances
-- [ ] Dark mode personnalisable (thèmes)
-- [ ] Éditeur YAML/TOML avec schéma
-
----
-
-## 📜 Licence
-
-Ce projet est distribué sous la licence **Polyform Noncommercial 1.0.0**.
-
-✅ **Autorisé :** usage personnel, modification, redistribution non-commerciale, usage associatif ou éducatif  
-❌ **Interdit :** vendre le logiciel ou l'accès à celui-ci, l'inclure dans un produit commercial
-
-Voir [LICENSE](LICENSE) pour les détails complets.
-
----
-
-## 📬 Contact
-
-Ouvre une [issue](../../issues) pour les bugs ou suggestions.  
-Voir nos autres projets sur [Notre Site Web](https://floodfield-sudio.github.io/FFS.index/)
+Développé par [Floodfield-Sudio](https://github.com/Floodfield-Sudio).  
+Construit avec [PyQt6](https://pypi.org/project/PyQt6/), [PyInstaller](https://pyinstaller.org).  
+Voir nos autres projets : [Notre Site Web](https://floodfield-sudio.github.io/FFS.index/).
