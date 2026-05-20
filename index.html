@@ -2,392 +2,393 @@
 <!DOCTYPE html>
 
 <html lang="en">
-<head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>DevStudio Pro - IDE &amp; Builder</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<style>
-        :root {
-            --bg-color: #0d1117;
-            --card-bg: #161b22;
-            --text-primary: #c9d1d9;
-            --text-secondary: #8b949e;
-            --accent: #58a6ff;
-            --border: #30363d;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-            line-height: 1.6;
-        }
-
-        .glass-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            margin-bottom: 24px;
-        }
-
-        a {
-            color: var(--accent);
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-
-        a:hover {
-            text-decoration: underline;
-            color: #79c0ff;
-        }
-
-        code {
-            background-color: rgba(110, 118, 129, 0.4);
-            padding: 0.2em 0.4em;
-            border-radius: 6px;
-            font-size: 85%;
-            font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
-        }
-
-        pre {
-            background-color: #0d1117 !important;
-            border: 1px solid var(--border);
-            padding: 16px;
-            padding-top: 36px; /* Espace pour le bouton copier */
-            border-radius: 8px;
-            overflow-x: auto;
-            margin: 16px 0;
-            position: relative; /* Nécessaire pour le bouton */
-        }
-
-        pre code {
-            background-color: transparent;
-            padding: 0;
-            font-size: 14px;
-        }
-
-        /* Styles pour le bouton de copie */
-        .copy-button {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            background-color: var(--card-bg);
-            border: 1px solid var(--border);
-            color: var(--text-secondary);
-            border-radius: 6px;
-            padding: 4px 8px;
-            font-size: 12px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            transition: all 0.2s ease;
-        }
-
-        .copy-button:hover {
-            background-color: var(--border);
-            color: var(--text-primary);
-        }
-    
-        .lang-btn {
-            border: 1px solid var(--border);
-            background: var(--card-bg);
-            color: var(--text-primary);
-            border-radius: 9999px;
-            padding: 0.45rem 0.8rem;
-            font-size: 0.875rem;
-            transition: all 0.2s ease;
-            cursor: pointer;
-        }
-        .lang-btn.active {
-            border-color: var(--accent);
-            color: white;
-            box-shadow: 0 0 0 1px rgba(88,166,255,0.18) inset;
-        }
-
-    </style>
-</head>
-<body class="min-h-screen flex flex-col items-center p-6 md:p-12">
-<!-- Navigation -->
-<nav class="w-full max-w-4xl mb-8 flex items-center justify-between gap-4">
-<a class="flex items-center text-sm font-semibold" href="https://floodfield-sudio.github.io/FFS.index/">
-<span class="mr-2">←</span> <span data-i18n="back_home">Back to home</span>
-</a>
-<div class="flex gap-2">
-<button class="lang-btn" id="btn-en" type="button">EN</button>
-<button class="lang-btn" id="btn-fr" type="button">FR</button>
-</div>
-</nav>
-<!-- Header -->
-<header class="w-full max-w-4xl mb-12 border-b border-[#30363d] pb-8">
-<h1 class="text-4xl font-bold text-white mb-4">
-<a class="hover:text-[#58a6ff]" href="https://github.com/Floodfield-Sudio/Dev-Studio">DevStudio Pro</a>
-</h1>
-<p class="text-xl text-gray-300 mb-6">
-<strong class="text-white">Python IDE + Minecraft mod builder</strong> — all-in-one, no administrator rights required.
-        </p>
-<div class="flex flex-wrap gap-2 mb-2">
-<a href="https://github.com/Floodfield-Sudio/Dev-Studio/blob/main/LICENSE" target="_blank">
-<img alt="License" src="https://img.shields.io/badge/License-Polyform%20NC%201.0-blue.svg"/>
-</a>
-<a href="https://python.org" target="_blank">
-<img alt="Python" src="https://img.shields.io/badge/Python-3.10%2B-yellow.svg"/>
-</a>
-<img alt="Platform" src="https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg"/>
-</div>
-</header>
-<!-- Main Content -->
-<main class="w-full max-w-4xl space-y-8">
- Features 
-<section class="glass-card p-6 md:p-8">
-<h2 class="text-2xl font-bold text-white mb-8 border-b border-[#30363d] pb-2">✨ Features</h2>
-<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-<!-- Python -->
-<div>
-<h3 class="text-xl font-semibold text-white mb-4 flex items-center">
-<span class="mr-2">🐍</span> Python mode
-                    </h3>
-<ul class="list-disc pl-6 space-y-2 text-gray-300">
-<li>Multi-tab editor with full syntax highlighting (keywords, builtins, docstrings, f-strings…)</li>
-<li>Line numbers, folding of <code>class</code>/<code>def</code>, current line highlighting</li>
-<li>Automatic pip dependency injection on save</li>
-<li>Build <code>.exe</code> / Linux/macOS binary via PyInstaller</li>
-<li>Dev → stable version system</li>
-<li><span class="italic text-gray-400">Automatic updates for the published app (via GitHub Releases) - in development</span></li>
-</ul>
-</div>
-<!-- Minecraft -->
-<div>
-<h3 class="text-xl font-semibold text-white mb-4 flex items-center">
-<span class="mr-2">⛏</span> Minecraft mode
-                    </h3>
-<ul class="list-disc pl-6 space-y-2 text-gray-300">
-<li>Supported loaders: <strong class="text-white">Forge</strong>, <strong class="text-white">NeoForge</strong>, <strong class="text-white">Fabric</strong>, <strong class="text-white">Quilt</strong></li>
-<li>Versions: 1.7.10, 1.12.2, 1.16.5, 1.18.2, 1.19.x, 1.20.x, 1.21.x</li>
-<li>JDK 8 / 17 / 21 downloaded automatically (no admin rights)</li>
-<li>Build <code>gradlew build</code> with real-time logs</li>
-<li>Automatic Gradle wrapper injection from the cached MDK</li>
-</ul>
-</div>
-<!-- Instances -->
-<div>
-<h3 class="text-xl font-semibold text-white mb-4 flex items-center">
-<span class="mr-2">🎮</span> Minecraft instances
-                    </h3>
-<ul class="list-disc pl-6 space-y-2 text-gray-300">
-<li>Isolated Vanilla / Forge / NeoForge / Fabric / Quilt instances</li>
-<li>Mode <strong class="text-white">FULL OFFLINE mode</strong> — no Mojang account required</li>
-<li>Offline single-player launch</li>
-<li>Dedicated local server (LAN / multiplayer, <code>online-mode=false</code>)</li>
-<li>Automatic copy of the compiled mod into each instance</li>
-<li>Built-in server terminal (commands <code>/op</code>, <code>/say</code>, andc.)</li>
-</ul>
-</div>
- GitHub 
-<div>
-<h3 class="text-xl font-semibold text-white mb-4 flex items-center">
-<span class="mr-2">🐙</span> GitHub
-                    </h3>
-<p class="text-sm italic text-gray-400 mb-2">- in development</p>
-<ul class="list-disc pl-6 space-y-2 text-gray-300">
-<li><code>git status / add / commit / push</code></li>
-<li>Creation of GitHub Releases with automatic upload of the <code>.jar</code> ou <code>.exe</code></li>
-<li>Token stored in sandtings (entered once)</li>
-</ul>
-</div>
-</div>
-</section>
- Installation &amp; quick start 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-<section class="glass-card p-6 md:p-8">
-<h2 class="text-2xl font-bold text-white mb-6 border-b border-[#30363d] pb-2">🚀 Installation</h2>
-<h3 class="text-lg font-semibold text-white mb-2">Windows</h3>
-<ol class="list-decimal pl-6 space-y-2 text-gray-300 mb-6">
-<li>Download <a href="https://python.org">Python 3.10+</a> — check <strong class="text-white">"Add Python to PATH"</strong></li>
-<li>Download <code>DevStudioPro.pyw</code> and <code>run.bat</code> from the <a href="https://github.com/Floodfield-Sudio/Dev-Studio/releases">Releases</a></li>
-<li>Place both files in the <strong class="text-white">same folder</strong></li>
-<li>Double-click <code>run.bat</code></li>
-</ol>
-<p class="text-sm text-gray-400 mb-6">The app installs to <code>%APPDATA%\FFS\DevStudio\</code>, PyQt6 is installed automatically.</p>
-<h3 class="text-lg font-semibold text-white mb-2">macOS / Linux</h3>
-<pre><code># Download DevStudioPro.pyw and run.sh
-chmod +x run.sh
-./run.sh</code></pre>
-</section>
-<section class="glass-card p-6 md:p-8">
-<h2 class="text-2xl font-bold text-white mb-6 border-b border-[#30363d] pb-2">Quick start</h2>
-<h3 class="text-lg font-semibold text-white mb-2">Python project</h3>
-<ol class="list-decimal pl-6 space-y-2 text-gray-300 mb-6">
-<li><strong class="text-white">📂 Open project</strong> → select the folder</li>
-<li>Edit files (double-click in the file explorer)</li>
-<li><strong class="text-white">▶ Run (F5)</strong> to test</li>
-<li>Tab <strong class="text-white">🐍 Python</strong> → fill in name, version, repo</li>
-<li><strong class="text-white">🔧 Build DEV</strong> → generates the exe + <code>_updater.py</code> + installers</li>
-</ol>
-<h3 class="text-lg font-semibold text-white mb-2">Minecraft mod</h3>
-<ol class="list-decimal pl-6 space-y-2 text-gray-300">
-<li>Open the mod folder (dandected if <code>gradlew</code> is present)</li>
-<li>Tab <strong class="text-white">⛏ Minecraft</strong> → choose loader + MC version</li>
-<li>Download the JDK if needed (auto button)</li>
-<li><strong class="text-white">🔨 Build</strong> → build, real-time logs</li>
-<li>Tab <strong class="text-white">🎮 Instances</strong> → create, install, launch</li>
-</ol>
-</section>
-</div>
- Python build structure 
-<section class="glass-card p-6 md:p-8">
-<h2 class="text-2xl font-bold text-white mb-6 border-b border-[#30363d] pb-2">📂 Generated structure (Python build)</h2>
-<pre><code>mon-projand/
-├── version_info.py     ← current version (generated)
-├── _updater.py         ← auto-update module (generated)
-├── version.json        ← dev / stable channels (generated)
-├── install_dev.bat     ← Windows installer (generated)
-├── install_dev.sh      ← Linux/macOS installer (generated)
-└── dist/
-    ├── dev/
-    │   └── MonApp.exe  ← development build
-    └── stable/
-        └── MonApp.exe  ← public build after promotion</code></pre>
-</section>
- License 
-<section class="glass-card p-6 md:p-8">
-<h2 class="text-2xl font-bold text-white mb-4 border-b border-[#30363d] pb-2">📜 License</h2>
-<p class="mb-4 text-gray-300">
-<strong class="text-white">Polyform Noncommercial License 1.0.0</strong> — non-commercial use only.
-            </p>
-<p class="mb-4 text-gray-300">
-                You may freely use, modify, and share this software for any <strong class="text-white">personal, educational, associative, or research use</strong>. Any commercial use is prohibited without prior approval.
-            </p>
-<p class="text-gray-400">See <a href="https://github.com/Floodfield-Sudio/Dev-Studio/blob/main/LICENSE">LICENSE</a> for the full text.</p>
-</section>
-</main>
-<!-- Footer -->
-<footer class="mt-8 pb-8 text-center w-full max-w-4xl border-t border-[#30363d] pt-8">
-<p class="text-gray-300 mb-2">
-            Developed by <a href="https://github.com/Floodfield-Sudio">Floodfield Studios</a>.
-        </p>
-<p class="text-gray-400 text-sm mb-4">
-            Built with <a href="https://pypi.org/project/PyQt6/">PyQt6</a> and <a href="https://pyinstaller.org">PyInstaller</a>.
-        </p>
-<p class="text-gray-500 text-sm">
-            See our other projects on <a href="https://floodfield-sudio.github.io/FFS.index/">Our Website</a><br/>
-            © 2022 Floodfield Studios.
-        </p>
-</footer>
- Script pour le bouton Copy 
-<script>
-        document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('pre').forEach(pre => {
-                const codeElement = pre.querySelector('code');
-                if (!codeElement) return;
-
-                const button = document.createElement('button');
-                button.className = 'copy-button';
-                button.innerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                    </svg> Copier`;
+        <head>
+                <meta charset="utf-8"/>
+                <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+                <title>Floodfield Studio - Home</title>
+                <link rel="icon" type="image/png" sizes="32x32" href="https://floodfield-sudio.github.io/FFS.index/assets/img/floodfiled_studio-sans_fond.jpg">
+                <script src="https://cdn.tailwindcss.com"></script>
+                <style>
+                        :root {
+                            --bg-color: #0d1117;
+                            --card-bg: #161b22;
+                            --text-primary: #c9d1d9;
+                            --text-secondary: #8b949e;
+                            --accent: #58a6ff;
+                            --border: #30363d;
+                        }
                 
-                button.addEventListener('click', () => {
-                    const textToCopy = codeElement.innerText;
-                    
-                    // Méthode compatible pour copier (marche même dans les iframes sur certains navigateurs)
-                    const textArea = document.createElement("textarea");
-                    textArea.value = textToCopy;
-                    textArea.style.position = "absolute";
-                    textArea.style.left = "-999999px";
-                    document.body.appendChild(textArea);
-                    textArea.select();
-                    
-                    try {
-                        document.execCommand('copy');
-                        
-                        // Changement d'état visuel au succès
-                        button.innerHTML = `
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg> <span class="text-green-400">Copié !</span>`;
-                        button.style.borderColor = '#3fb950';
-                        
-                        setTimeout(() => {
-                            button.innerHTML = `
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                                </svg> Copier`;
-                            button.style.borderColor = '';
-                        }, 2000);
-                    } catch (err) {
-                        console.error('Erreur lors de la copie', err);
-                    }
-                    
-                    document.body.removeChild(textArea);
-                });
+                        body {
+                            background-color: var(--bg-color);
+                            color: var(--text-primary);
+                            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+                            line-height: 1.6;
+                        }
                 
-                pre.appendChild(button);
-            });
-        });
-    </script>
-<script>
-      document.addEventListener('DOMContentLoaded', () => {
-        const pairs = [["Éditeur multi-onglets avec coloration syntaxique complète (mots-clés, builtins, docstrings, f-strings…)", "Multi-tab editor with full syntax highlighting (keywords, builtins, docstrings, f-strings…)"], ["MàJ automatique de l'app publiée (via GitHub Releases) - En cours de développement", "Automatic updates for the published app (via GitHub Releases) - in development"], ["Vous pouvez librement utiliser, modifier et partager ce logiciel pour tout usage", "You may freely use, modify, and share this software for any"], ["Versions : 1.7.10, 1.12.2, 1.16.5, 1.18.2, 1.19.x, 1.20.x, 1.21.x", "Versions: 1.7.10, 1.12.2, 1.16.5, 1.18.2, 1.19.x, 1.20.x, 1.21.x"], ["JDK 8 / 17 / 21 téléchargé automatiquement (sans droits admin)", "JDK 8 / 17 / 21 downloaded automatically (no admin rights)"], ["Injection automatique du Gradle wrapper depuis le MDK en cache", "Automatic Gradle wrapper injection from the cached MDK"], ["Instances isolées Vanilla / Forge / NeoForge / Fabric / Quilt", "Isolated Vanilla / Forge / NeoForge / Fabric / Quilt instances"], [". Tout usage commercial est interdit sans accord préalable.", ". Any commercial use is prohibited without prior approval."], ["Token stocké dans les paramètres (saisi une seule fois)", "Token stored in settings (entered once)"], ["Création de Releases GitHub avec upload automatique du", "Creation of GitHub Releases with automatic upload of the"], ["Copie automatique du mod compilé dans chaque instance", "Automatic copy of the compiled mod into each instance"], ["Éditer les fichiers (double-clic dans l'explorateur)", "Edit files (double-click in the file explorer)"], ["Auto-injection des dépendances pip à la sauvegarde", "Automatic pip dependency injection on save"], ["personnel, éducatif, associatif ou de recherche", "personal, educational, associative, or research use"], ["Télécharger le JDK si nécessaire (bouton auto)", "Download the JDK if needed (auto button)"], ["— tout-en-un, sans droits administrateur.", "— all-in-one, no administrator rights required."], ["— utilisation non-commerciale uniquement.", "— non-commercial use only."], ["Lancement solo (singleplayer) hors-ligne", "Offline single-player launch"], ["# Téléchargez DevStudioPro.pyw et run.sh", "# Download DevStudioPro.pyw and run.sh"], ["Serveur local dédié (LAN / multijoueur,", "Dedicated local server (LAN / multiplayer,"], ["IDE Python + Builder de mods Minecraft", "Python IDE + Minecraft mod builder"], ["Ouvrir le dossier du mod (détection si", "Open the mod folder (detected if"], ["/ binaire Linux/macOS via PyInstaller", "/ Linux/macOS binary via PyInstaller"], ["Terminal serveur intégré (commandes", "Built-in server terminal (commands"], ["Guide d'utilisation et installation", "Installation & quick start"], ["📂 Structure générée (build Python)", "📂 Generated structure (Python build)"], ["Numéros de ligne, repli des blocs", "Line numbers, folding of"], ["Système de versions dev → stable", "Dev → stable version system"], ["Placez les deux fichiers dans le", "Place both files in the"], ["→ renseigner Nom, version, repo", "→ fill in name, version, repo"], ["installeur Linux/macOS (généré)", "Linux/macOS installer (generated)"], [", surbrillance ligne courante", ", current line highlighting"], ["est installé automatiquement.", "is installed automatically."], ["→ choisir loader + version MC", "→ choose loader + MC version"], ["→ compile, logs en temps réel", "→ build, real-time logs"], ["— aucun compte Mojang requis", "— no Mojang account required"], ["canaux dev / stable (généré)", "dev / stable channels (generated)"], ["build public après promotion", "public build after promotion"], ["- en cours de développement", "- in development"], ["module de MàJ auto (généré)", "auto-update module (generated)"], ["installeur Windows (généré)", "Windows installer (generated)"], ["Voir nos autres projets sur", "See our other projects on"], ["→ créer, installer, lancer", "→ create, install, launch"], ["→ sélectionner le dossier", "→ select the folder"], ["version courante (généré)", "current version (generated)"], ["avec logs en temps réel", "with real-time logs"], ["Structure Build Python", "Python build structure"], ["build de développement", "development build"], ["pour le texte complet.", "for the full text."], ["L'app s'installe dans", "The app installs to"], ["Tous droits réservés.", "All rights reserved."], ["📖 Utilisation rapide", "Quick start"], ["Loaders supportés :", "Supported loaders:"], ["Instances Minecraft", "Minecraft instances"], ["Retour à l'accueil", "Back to home"], ["Double-cliquez sur", "Double-click"], ["Floodfield-Studios", "Floodfield Studios"], ["→ génère l'exe +", "→ generates the exe +"], ["Fonctionnalités", "Features"], ["📂 Ouvrir projet", "📂 Open project"], ["▶ Exécuter (F5)", "▶ Run (F5)"], ["Mode Minecraft", "Minecraft mode"], ["Construit avec", "Built with"], ["Notre Site Web", "Our Website"], ["OFFLINE total", "FULL OFFLINE mode"], ["macOS / Linux", "macOS / Linux"], ["Projet Python", "Python project"], ["+ installeurs", "+ installers"], ["Mod Minecraft", "Minecraft mod"], ["Développé par", "Developed by"], ["Installation", "Installation"], ["même dossier", "same folder"], ["Mode Python", "Python mode"], ["Compilation", "Build"], ["Téléchargez", "Download"], ["pour tester", "to test"], ["🔧 Build DEV", "🔧 Build DEV"], ["depuis les", "from the"], ["— cochez", "— check"], ["Releases", "Releases"], ["présent)", "is present)"], ["Windows", "Windows"], ["Licence", "License"], ["Copié !", "Copied!"], ["GitHub", "GitHub"], ["Onglet", "Tab"], ["Copier", "Copy"], ["Copier", "Copy"], ["class", "class"], ["Build", "Build"], ["Mode", "Mode"], ["Voir", "See"], ["def", "def"], ["et", "and"]];
-        const titleMap = {"en": "DevStudio Pro - IDE & Builder", "fr": "DevStudio Pro - IDE & Builder"};
-        const storageKey = 'siteLang';
-        let currentLang = 'en';
-
-        function translateText(text, fromLang, toLang) {
-          const sourcePairs = fromLang === 'fr' ? pairs : pairs.map(([fr, en]) => [en, fr]);
-          let out = text;
-          sourcePairs.forEach(([from, to]) => {
-            if (from && to && out.includes(from)) {
-              out = out.split(from).join(to);
-            }
-          });
-          return out;
-        }
-
-        function walkTextNodes(root, fromLang, toLang) {
-          const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
-            acceptNode(node) {
-              const parent = node.parentElement;
-              if (!parent) return NodeFilter.FILTER_REJECT;
-              if (['SCRIPT', 'STYLE', 'NOSCRIPT'].includes(parent.tagName)) return NodeFilter.FILTER_REJECT;
-              return NodeFilter.FILTER_ACCEPT;
-            }
-          });
-          const nodes = [];
-          while (walker.nextNode()) nodes.push(walker.currentNode);
-          nodes.forEach(node => {
-            node.nodeValue = translateText(node.nodeValue, fromLang, toLang);
-          });
-        }
-
-        function setButtons(lang) {
-          const btnFr = document.getElementById('btn-fr');
-          const btnEn = document.getElementById('btn-en');
-          if (btnFr) btnFr.classList.toggle('active', lang === 'fr');
-          if (btnEn) btnEn.classList.toggle('active', lang === 'en');
-        }
-
-        function applyLanguage(lang) {
-          if (lang !== currentLang) {
-            walkTextNodes(document.body, currentLang, lang);
-            currentLang = lang;
-          }
-          document.documentElement.lang = lang;
-          if (titleMap[lang]) document.title = titleMap[lang];
-          localStorage.setItem(storageKey, lang);
-          setButtons(lang);
-        }
-
-        const saved = localStorage.getItem(storageKey);
-        const defaultLang = 'en';
-        applyLanguage(saved || defaultLang);
-
-        const btnFr = document.getElementById('btn-fr');
-        const btnEn = document.getElementById('btn-en');
-        if (btnFr) btnFr.addEventListener('click', () => applyLanguage('fr'));
-        if (btnEn) btnEn.addEventListener('click', () => applyLanguage('en'));
-      });
-    </script>
-</body>
+                        .glass-card {
+                            background: var(--card-bg);
+                            border: 1px solid var(--border);
+                            border-radius: 12px;
+                            margin-bottom: 24px;
+                        }
+                
+                        a {
+                            color: var(--accent);
+                            text-decoration: none;
+                            transition: color 0.2s;
+                        }
+                
+                        a:hover {
+                            text-decoration: underline;
+                            color: #79c0ff;
+                        }
+                
+                        code {
+                            background-color: rgba(110, 118, 129, 0.4);
+                            padding: 0.2em 0.4em;
+                            border-radius: 6px;
+                            font-size: 85%;
+                            font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+                        }
+                
+                        pre {
+                            background-color: #0d1117 !important;
+                            border: 1px solid var(--border);
+                            padding: 16px;
+                            padding-top: 36px; /* Espace pour le bouton copier */
+                            border-radius: 8px;
+                            overflow-x: auto;
+                            margin: 16px 0;
+                            position: relative; /* Nécessaire pour le bouton */
+                        }
+                
+                        pre code {
+                            background-color: transparent;
+                            padding: 0;
+                            font-size: 14px;
+                        }
+                
+                        /* Styles pour le bouton de copie */
+                        .copy-button {
+                            position: absolute;
+                            top: 8px;
+                            right: 8px;
+                            background-color: var(--card-bg);
+                            border: 1px solid var(--border);
+                            color: var(--text-secondary);
+                            border-radius: 6px;
+                            padding: 4px 8px;
+                            font-size: 12px;
+                            cursor: pointer;
+                            display: flex;
+                            align-items: center;
+                            transition: all 0.2s ease;
+                        }
+                
+                        .copy-button:hover {
+                            background-color: var(--border);
+                            color: var(--text-primary);
+                        }
+                    
+                        .lang-btn {
+                            border: 1px solid var(--border);
+                            background: var(--card-bg);
+                            color: var(--text-primary);
+                            border-radius: 9999px;
+                            padding: 0.45rem 0.8rem;
+                            font-size: 0.875rem;
+                            transition: all 0.2s ease;
+                            cursor: pointer;
+                        }
+                        .lang-btn.active {
+                            border-color: var(--accent);
+                            color: white;
+                            box-shadow: 0 0 0 1px rgba(88,166,255,0.18) inset;
+                        }
+                
+                    </style>
+                </head>
+                <body class="min-h-screen flex flex-col items-center p-6 md:p-12">
+                <!-- Navigation -->
+                <nav class="w-full max-w-4xl mb-8 flex items-center justify-between gap-4">
+                <a class="flex items-center text-sm font-semibold" href="https://floodfield-sudio.github.io/FFS.index/">
+                <span class="mr-2">←</span> <span data-i18n="back_home">Back to home</span>
+                </a>
+                <div class="flex gap-2">
+                <button class="lang-btn" id="btn-en" type="button">EN</button>
+                <button class="lang-btn" id="btn-fr" type="button">FR</button>
+                </div>
+                </nav>
+                <!-- Header -->
+                <header class="w-full max-w-4xl mb-12 border-b border-[#30363d] pb-8">
+                <h1 class="text-4xl font-bold text-white mb-4">
+                <a class="hover:text-[#58a6ff]" href="https://github.com/Floodfield-Sudio/Dev-Studio">DevStudio Pro</a>
+                </h1>
+                <p class="text-xl text-gray-300 mb-6">
+                <strong class="text-white">Python IDE + Minecraft mod builder</strong> — all-in-one, no administrator rights required.
+                        </p>
+                <div class="flex flex-wrap gap-2 mb-2">
+                <a href="https://github.com/Floodfield-Sudio/Dev-Studio/blob/main/LICENSE" target="_blank">
+                <img alt="License" src="https://img.shields.io/badge/License-Polyform%20NC%201.0-blue.svg"/>
+                </a>
+                <a href="https://python.org" target="_blank">
+                <img alt="Python" src="https://img.shields.io/badge/Python-3.10%2B-yellow.svg"/>
+                </a>
+                <img alt="Platform" src="https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg"/>
+                </div>
+                </header>
+                <!-- Main Content -->
+                <main class="w-full max-w-4xl space-y-8">
+                 Features 
+                <section class="glass-card p-6 md:p-8">
+                <h2 class="text-2xl font-bold text-white mb-8 border-b border-[#30363d] pb-2">✨ Features</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Python -->
+                <div>
+                <h3 class="text-xl font-semibold text-white mb-4 flex items-center">
+                <span class="mr-2">🐍</span> Python mode
+                                    </h3>
+                <ul class="list-disc pl-6 space-y-2 text-gray-300">
+                <li>Multi-tab editor with full syntax highlighting (keywords, builtins, docstrings, f-strings…)</li>
+                <li>Line numbers, folding of <code>class</code>/<code>def</code>, current line highlighting</li>
+                <li>Automatic pip dependency injection on save</li>
+                <li>Build <code>.exe</code> / Linux/macOS binary via PyInstaller</li>
+                <li>Dev → stable version system</li>
+                <li><span class="italic text-gray-400">Automatic updates for the published app (via GitHub Releases) - in development</span></li>
+                </ul>
+                </div>
+                <!-- Minecraft -->
+                <div>
+                <h3 class="text-xl font-semibold text-white mb-4 flex items-center">
+                <span class="mr-2">⛏</span> Minecraft mode
+                                    </h3>
+                <ul class="list-disc pl-6 space-y-2 text-gray-300">
+                <li>Supported loaders: <strong class="text-white">Forge</strong>, <strong class="text-white">NeoForge</strong>, <strong class="text-white">Fabric</strong>, <strong class="text-white">Quilt</strong></li>
+                <li>Versions: 1.7.10, 1.12.2, 1.16.5, 1.18.2, 1.19.x, 1.20.x, 1.21.x</li>
+                <li>JDK 8 / 17 / 21 downloaded automatically (no admin rights)</li>
+                <li>Build <code>gradlew build</code> with real-time logs</li>
+                <li>Automatic Gradle wrapper injection from the cached MDK</li>
+                </ul>
+                </div>
+                <!-- Instances -->
+                <div>
+                <h3 class="text-xl font-semibold text-white mb-4 flex items-center">
+                <span class="mr-2">🎮</span> Minecraft instances
+                                    </h3>
+                <ul class="list-disc pl-6 space-y-2 text-gray-300">
+                <li>Isolated Vanilla / Forge / NeoForge / Fabric / Quilt instances</li>
+                <li>Mode <strong class="text-white">FULL OFFLINE mode</strong> — no Mojang account required</li>
+                <li>Offline single-player launch</li>
+                <li>Dedicated local server (LAN / multiplayer, <code>online-mode=false</code>)</li>
+                <li>Automatic copy of the compiled mod into each instance</li>
+                <li>Built-in server terminal (commands <code>/op</code>, <code>/say</code>, andc.)</li>
+                </ul>
+                </div>
+                 GitHub 
+                <div>
+                <h3 class="text-xl font-semibold text-white mb-4 flex items-center">
+                <span class="mr-2">🐙</span> GitHub
+                                    </h3>
+                <p class="text-sm italic text-gray-400 mb-2">- in development</p>
+                <ul class="list-disc pl-6 space-y-2 text-gray-300">
+                <li><code>git status / add / commit / push</code></li>
+                <li>Creation of GitHub Releases with automatic upload of the <code>.jar</code> ou <code>.exe</code></li>
+                <li>Token stored in sandtings (entered once)</li>
+                </ul>
+                </div>
+                </div>
+                </section>
+                 Installation &amp; quick start 
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <section class="glass-card p-6 md:p-8">
+                <h2 class="text-2xl font-bold text-white mb-6 border-b border-[#30363d] pb-2">🚀 Installation</h2>
+                <h3 class="text-lg font-semibold text-white mb-2">Windows</h3>
+                <ol class="list-decimal pl-6 space-y-2 text-gray-300 mb-6">
+                <li>Download <a href="https://python.org">Python 3.10+</a> — check <strong class="text-white">"Add Python to PATH"</strong></li>
+                <li>Download <code>DevStudioPro.pyw</code> and <code>run.bat</code> from the <a href="https://github.com/Floodfield-Sudio/Dev-Studio/releases">Releases</a></li>
+                <li>Place both files in the <strong class="text-white">same folder</strong></li>
+                <li>Double-click <code>run.bat</code></li>
+                </ol>
+                <p class="text-sm text-gray-400 mb-6">The app installs to <code>%APPDATA%\FFS\DevStudio\</code>, PyQt6 is installed automatically.</p>
+                <h3 class="text-lg font-semibold text-white mb-2">macOS / Linux</h3>
+                <pre><code># Download DevStudioPro.pyw and run.sh
+                chmod +x run.sh
+                ./run.sh</code></pre>
+                </section>
+                <section class="glass-card p-6 md:p-8">
+                <h2 class="text-2xl font-bold text-white mb-6 border-b border-[#30363d] pb-2">Quick start</h2>
+                <h3 class="text-lg font-semibold text-white mb-2">Python project</h3>
+                <ol class="list-decimal pl-6 space-y-2 text-gray-300 mb-6">
+                <li><strong class="text-white">📂 Open project</strong> → select the folder</li>
+                <li>Edit files (double-click in the file explorer)</li>
+                <li><strong class="text-white">▶ Run (F5)</strong> to test</li>
+                <li>Tab <strong class="text-white">🐍 Python</strong> → fill in name, version, repo</li>
+                <li><strong class="text-white">🔧 Build DEV</strong> → generates the exe + <code>_updater.py</code> + installers</li>
+                </ol>
+                <h3 class="text-lg font-semibold text-white mb-2">Minecraft mod</h3>
+                <ol class="list-decimal pl-6 space-y-2 text-gray-300">
+                <li>Open the mod folder (dandected if <code>gradlew</code> is present)</li>
+                <li>Tab <strong class="text-white">⛏ Minecraft</strong> → choose loader + MC version</li>
+                <li>Download the JDK if needed (auto button)</li>
+                <li><strong class="text-white">🔨 Build</strong> → build, real-time logs</li>
+                <li>Tab <strong class="text-white">🎮 Instances</strong> → create, install, launch</li>
+                </ol>
+                </section>
+                </div>
+                 Python build structure 
+                <section class="glass-card p-6 md:p-8">
+                <h2 class="text-2xl font-bold text-white mb-6 border-b border-[#30363d] pb-2">📂 Generated structure (Python build)</h2>
+                <pre><code>mon-projand/
+                ├── version_info.py     ← current version (generated)
+                ├── _updater.py         ← auto-update module (generated)
+                ├── version.json        ← dev / stable channels (generated)
+                ├── install_dev.bat     ← Windows installer (generated)
+                ├── install_dev.sh      ← Linux/macOS installer (generated)
+                └── dist/
+                    ├── dev/
+                    │   └── MonApp.exe  ← development build
+                    └── stable/
+                        └── MonApp.exe  ← public build after promotion</code></pre>
+                </section>
+                 License 
+                <section class="glass-card p-6 md:p-8">
+                <h2 class="text-2xl font-bold text-white mb-4 border-b border-[#30363d] pb-2">📜 License</h2>
+                <p class="mb-4 text-gray-300">
+                <strong class="text-white">Polyform Noncommercial License 1.0.0</strong> — non-commercial use only.
+                            </p>
+                <p class="mb-4 text-gray-300">
+                                You may freely use, modify, and share this software for any <strong class="text-white">personal, educational, associative, or research use</strong>. Any commercial use is prohibited without prior approval.
+                            </p>
+                <p class="text-gray-400">See <a href="https://github.com/Floodfield-Sudio/Dev-Studio/blob/main/LICENSE">LICENSE</a> for the full text.</p>
+                </section>
+                </main>
+                <!-- Footer -->
+                <footer class="mt-8 pb-8 text-center w-full max-w-4xl border-t border-[#30363d] pt-8">
+                <p class="text-gray-300 mb-2">
+                            Developed by <a href="https://github.com/Floodfield-Sudio">Floodfield Studios</a>.
+                        </p>
+                <p class="text-gray-400 text-sm mb-4">
+                            Built with <a href="https://pypi.org/project/PyQt6/">PyQt6</a> and <a href="https://pyinstaller.org">PyInstaller</a>.
+                        </p>
+                <p class="text-gray-500 text-sm">
+                            See our other projects on <a href="https://floodfield-sudio.github.io/FFS.index/">Our Website</a><br/>
+                            © 2022 Floodfield Studios.
+                        </p>
+                </footer>
+                 Script pour le bouton Copy 
+                <script>
+                        document.addEventListener('DOMContentLoaded', () => {
+                            document.querySelectorAll('pre').forEach(pre => {
+                                const codeElement = pre.querySelector('code');
+                                if (!codeElement) return;
+                
+                                const button = document.createElement('button');
+                                button.className = 'copy-button';
+                                button.innerHTML = `
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                    </svg> Copier`;
+                                
+                                button.addEventListener('click', () => {
+                                    const textToCopy = codeElement.innerText;
+                                    
+                                    // Méthode compatible pour copier (marche même dans les iframes sur certains navigateurs)
+                                    const textArea = document.createElement("textarea");
+                                    textArea.value = textToCopy;
+                                    textArea.style.position = "absolute";
+                                    textArea.style.left = "-999999px";
+                                    document.body.appendChild(textArea);
+                                    textArea.select();
+                                    
+                                    try {
+                                        document.execCommand('copy');
+                                        
+                                        // Changement d'état visuel au succès
+                                        button.innerHTML = `
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                            </svg> <span class="text-green-400">Copié !</span>`;
+                                        button.style.borderColor = '#3fb950';
+                                        
+                                        setTimeout(() => {
+                                            button.innerHTML = `
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                                </svg> Copier`;
+                                            button.style.borderColor = '';
+                                        }, 2000);
+                                    } catch (err) {
+                                        console.error('Erreur lors de la copie', err);
+                                    }
+                                    
+                                    document.body.removeChild(textArea);
+                                });
+                                
+                                pre.appendChild(button);
+                            });
+                        });
+                </script>
+                <script>
+                      document.addEventListener('DOMContentLoaded', () => {
+                        const pairs = [["Éditeur multi-onglets avec coloration syntaxique complète (mots-clés, builtins, docstrings, f-strings…)", "Multi-tab editor with full syntax highlighting (keywords, builtins, docstrings, f-strings…)"], ["MàJ automatique de l'app publiée (via GitHub Releases) - En cours de développement", "Automatic updates for the published app (via GitHub Releases) - in development"], ["Vous pouvez librement utiliser, modifier et partager ce logiciel pour tout usage", "You may freely use, modify, and share this software for any"], ["Versions : 1.7.10, 1.12.2, 1.16.5, 1.18.2, 1.19.x, 1.20.x, 1.21.x", "Versions: 1.7.10, 1.12.2, 1.16.5, 1.18.2, 1.19.x, 1.20.x, 1.21.x"], ["JDK 8 / 17 / 21 téléchargé automatiquement (sans droits admin)", "JDK 8 / 17 / 21 downloaded automatically (no admin rights)"], ["Injection automatique du Gradle wrapper depuis le MDK en cache", "Automatic Gradle wrapper injection from the cached MDK"], ["Instances isolées Vanilla / Forge / NeoForge / Fabric / Quilt", "Isolated Vanilla / Forge / NeoForge / Fabric / Quilt instances"], [". Tout usage commercial est interdit sans accord préalable.", ". Any commercial use is prohibited without prior approval."], ["Token stocké dans les paramètres (saisi une seule fois)", "Token stored in settings (entered once)"], ["Création de Releases GitHub avec upload automatique du", "Creation of GitHub Releases with automatic upload of the"], ["Copie automatique du mod compilé dans chaque instance", "Automatic copy of the compiled mod into each instance"], ["Éditer les fichiers (double-clic dans l'explorateur)", "Edit files (double-click in the file explorer)"], ["Auto-injection des dépendances pip à la sauvegarde", "Automatic pip dependency injection on save"], ["personnel, éducatif, associatif ou de recherche", "personal, educational, associative, or research use"], ["Télécharger le JDK si nécessaire (bouton auto)", "Download the JDK if needed (auto button)"], ["— tout-en-un, sans droits administrateur.", "— all-in-one, no administrator rights required."], ["— utilisation non-commerciale uniquement.", "— non-commercial use only."], ["Lancement solo (singleplayer) hors-ligne", "Offline single-player launch"], ["# Téléchargez DevStudioPro.pyw et run.sh", "# Download DevStudioPro.pyw and run.sh"], ["Serveur local dédié (LAN / multijoueur,", "Dedicated local server (LAN / multiplayer,"], ["IDE Python + Builder de mods Minecraft", "Python IDE + Minecraft mod builder"], ["Ouvrir le dossier du mod (détection si", "Open the mod folder (detected if"], ["/ binaire Linux/macOS via PyInstaller", "/ Linux/macOS binary via PyInstaller"], ["Terminal serveur intégré (commandes", "Built-in server terminal (commands"], ["Guide d'utilisation et installation", "Installation & quick start"], ["📂 Structure générée (build Python)", "📂 Generated structure (Python build)"], ["Numéros de ligne, repli des blocs", "Line numbers, folding of"], ["Système de versions dev → stable", "Dev → stable version system"], ["Placez les deux fichiers dans le", "Place both files in the"], ["→ renseigner Nom, version, repo", "→ fill in name, version, repo"], ["installeur Linux/macOS (généré)", "Linux/macOS installer (generated)"], [", surbrillance ligne courante", ", current line highlighting"], ["est installé automatiquement.", "is installed automatically."], ["→ choisir loader + version MC", "→ choose loader + MC version"], ["→ compile, logs en temps réel", "→ build, real-time logs"], ["— aucun compte Mojang requis", "— no Mojang account required"], ["canaux dev / stable (généré)", "dev / stable channels (generated)"], ["build public après promotion", "public build after promotion"], ["- en cours de développement", "- in development"], ["module de MàJ auto (généré)", "auto-update module (generated)"], ["installeur Windows (généré)", "Windows installer (generated)"], ["Voir nos autres projets sur", "See our other projects on"], ["→ créer, installer, lancer", "→ create, install, launch"], ["→ sélectionner le dossier", "→ select the folder"], ["version courante (généré)", "current version (generated)"], ["avec logs en temps réel", "with real-time logs"], ["Structure Build Python", "Python build structure"], ["build de développement", "development build"], ["pour le texte complet.", "for the full text."], ["L'app s'installe dans", "The app installs to"], ["Tous droits réservés.", "All rights reserved."], ["📖 Utilisation rapide", "Quick start"], ["Loaders supportés :", "Supported loaders:"], ["Instances Minecraft", "Minecraft instances"], ["Retour à l'accueil", "Back to home"], ["Double-cliquez sur", "Double-click"], ["Floodfield-Studios", "Floodfield Studios"], ["→ génère l'exe +", "→ generates the exe +"], ["Fonctionnalités", "Features"], ["📂 Ouvrir projet", "📂 Open project"], ["▶ Exécuter (F5)", "▶ Run (F5)"], ["Mode Minecraft", "Minecraft mode"], ["Construit avec", "Built with"], ["Notre Site Web", "Our Website"], ["OFFLINE total", "FULL OFFLINE mode"], ["macOS / Linux", "macOS / Linux"], ["Projet Python", "Python project"], ["+ installeurs", "+ installers"], ["Mod Minecraft", "Minecraft mod"], ["Développé par", "Developed by"], ["Installation", "Installation"], ["même dossier", "same folder"], ["Mode Python", "Python mode"], ["Compilation", "Build"], ["Téléchargez", "Download"], ["pour tester", "to test"], ["🔧 Build DEV", "🔧 Build DEV"], ["depuis les", "from the"], ["— cochez", "— check"], ["Releases", "Releases"], ["présent)", "is present)"], ["Windows", "Windows"], ["Licence", "License"], ["Copié !", "Copied!"], ["GitHub", "GitHub"], ["Onglet", "Tab"], ["Copier", "Copy"], ["Copier", "Copy"], ["class", "class"], ["Build", "Build"], ["Mode", "Mode"], ["Voir", "See"], ["def", "def"], ["et", "and"]];
+                        const titleMap = {"en": "DevStudio Pro - IDE & Builder", "fr": "DevStudio Pro - IDE & Builder"};
+                        const storageKey = 'siteLang';
+                        let currentLang = 'en';
+                
+                        function translateText(text, fromLang, toLang) {
+                          const sourcePairs = fromLang === 'fr' ? pairs : pairs.map(([fr, en]) => [en, fr]);
+                          let out = text;
+                          sourcePairs.forEach(([from, to]) => {
+                            if (from && to && out.includes(from)) {
+                              out = out.split(from).join(to);
+                            }
+                          });
+                          return out;
+                        }
+                
+                        function walkTextNodes(root, fromLang, toLang) {
+                          const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+                            acceptNode(node) {
+                              const parent = node.parentElement;
+                              if (!parent) return NodeFilter.FILTER_REJECT;
+                              if (['SCRIPT', 'STYLE', 'NOSCRIPT'].includes(parent.tagName)) return NodeFilter.FILTER_REJECT;
+                              return NodeFilter.FILTER_ACCEPT;
+                            }
+                          });
+                          const nodes = [];
+                          while (walker.nextNode()) nodes.push(walker.currentNode);
+                          nodes.forEach(node => {
+                            node.nodeValue = translateText(node.nodeValue, fromLang, toLang);
+                          });
+                        }
+                
+                        function setButtons(lang) {
+                          const btnFr = document.getElementById('btn-fr');
+                          const btnEn = document.getElementById('btn-en');
+                          if (btnFr) btnFr.classList.toggle('active', lang === 'fr');
+                          if (btnEn) btnEn.classList.toggle('active', lang === 'en');
+                        }
+                
+                        function applyLanguage(lang) {
+                          if (lang !== currentLang) {
+                            walkTextNodes(document.body, currentLang, lang);
+                            currentLang = lang;
+                          }
+                          document.documentElement.lang = lang;
+                          if (titleMap[lang]) document.title = titleMap[lang];
+                          localStorage.setItem(storageKey, lang);
+                          setButtons(lang);
+                        }
+                
+                        const saved = localStorage.getItem(storageKey);
+                        const defaultLang = 'en';
+                        applyLanguage(saved || defaultLang);
+                
+                        const btnFr = document.getElementById('btn-fr');
+                        const btnEn = document.getElementById('btn-en');
+                        if (btnFr) btnFr.addEventListener('click', () => applyLanguage('fr'));
+                        if (btnEn) btnEn.addEventListener('click', () => applyLanguage('en'));
+                      });
+                </script>
+        </body>
 </html>
